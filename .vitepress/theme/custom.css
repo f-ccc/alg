@@ -1,0 +1,131 @@
+/* ============================================
+   "单调有水平" Theme — custom.css
+   Minimal but sophisticated design for algorithm blog
+   ============================================ */
+
+/* --- Font Stack --- */
+:root {
+  /* Chinese: Noto Sans SC (preferred), PingFang (macOS), Microsoft YaHei (Windows fallback) */
+  --vp-font-family-base: 'Noto Sans SC', 'PingFang SC', 'Microsoft YaHei', -apple-system, sans-serif;
+  /* Mono: JetBrains Mono (preferred), Fira Code, Consolas */
+  --vp-font-family-mono: 'JetBrains Mono', 'Fira Code', 'Consolas', 'Courier New', monospace;
+
+  /* Color tokens - Light mode */
+  --vp-c-bg: #fafafa;
+  --vp-c-bg-alt: #f5f5f5;
+  --vp-c-bg-elv: #ffffff;
+  --vp-c-text: #1a1a2e;
+  --vp-c-text-mute: #6b7280;
+  --vp-c-brand-1: #2563eb;
+  --vp-c-brand-2: #1d4ed8;
+  --vp-c-brand-3: #1e40af;
+  --vp-c-border: #e5e7eb;
+  --vp-c-divider: #e5e7eb;
+
+  /* Custom radius */
+  --vp-border-radius: 8px;
+
+  /* Content width - slightly wider for code */
+  --vp-content-max-width: 860px;
+}
+
+/* --- Dark Mode Overrides --- */
+.dark {
+  --vp-c-bg: #0f0f1a;
+  --vp-c-bg-alt: #1a1a2e;
+  --vp-c-bg-elv: #1e1e32;
+  --vp-c-text: #e4e4e7;
+  --vp-c-text-mute: #9ca3af;
+  --vp-c-brand-1: #60a5fa;
+  --vp-c-brand-2: #3b82f6;
+  --vp-c-brand-3: #2563eb;
+  --vp-c-border: #2d2d3f;
+  --vp-c-divider: #2d2d3f;
+}
+
+/* --- Typography Tweaks --- */
+/* Better line height for Chinese text */
+.vp-doc {
+  line-height: 1.75;
+}
+
+.vp-doc p {
+  margin: 1.25em 0;
+}
+
+.vp-doc h1 {
+  font-size: 2rem;
+  font-weight: 700;
+  letter-spacing: -0.02em;
+  margin-top: 0;
+}
+
+.vp-doc h2 {
+  font-size: 1.5rem;
+  font-weight: 600;
+  margin-top: 2.5em;
+  padding-bottom: 0.3em;
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+.vp-doc h3 {
+  font-size: 1.2rem;
+  font-weight: 600;
+  margin-top: 2em;
+}
+
+/* --- Code Block Styling --- */
+.vp-doc div[class*='language-'] {
+  margin: 1.5em 0;
+  border-radius: var(--vp-border-radius);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.08);
+}
+
+/* Inline code */
+.vp-doc code {
+  font-size: 0.875em;
+  padding: 0.2em 0.4em;
+  border-radius: 4px;
+  background-color: var(--vp-c-bg-alt);
+}
+
+/* --- Code Groups (multi-language tabs) --- */
+.vp-doc .vp-code-group {
+  margin: 1.5em 0;
+}
+
+.vp-doc .vp-code-group .tabs {
+  border-radius: var(--vp-border-radius) var(--vp-border-radius) 0 0;
+  overflow: hidden;
+}
+
+/* --- Navigation --- */
+.VPNav {
+  border-bottom: 1px solid var(--vp-c-divider);
+}
+
+/* --- Sidebar --- */
+.VPSidebar {
+  padding-top: 24px;
+}
+
+.VPSidebarItem .text {
+  font-size: 0.9rem;
+}
+
+/* --- Custom Block / Callout --- */
+.vp-doc .custom-block {
+  border-radius: var(--vp-border-radius);
+  font-size: 0.95rem;
+}
+
+/* --- Table --- */
+.vp-doc table {
+  border-radius: var(--vp-border-radius);
+  overflow: hidden;
+}
+
+.vp-doc th,
+.vp-doc td {
+  padding: 0.75em 1em;
+}

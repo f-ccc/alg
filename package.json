@@ -1,0 +1,23 @@
+{
+  "name": "algoblog",
+  "version": "1.0.0",
+  "private": true,
+  "description": "个人算法技术博客 — 题解, 数据结构, 竞赛记录与代码模板",
+  "type": "module",
+  "scripts": {
+    "dev": "vitepress dev",
+    "build": "vitepress build",
+    "preview": "vitepress preview",
+    "new:post": "node scripts/new-post.mjs"
+  },
+  "keywords": [
+    "algorithm",
+    "blog",
+    "competitive-programming"
+  ],
+  "license": "MIT",
+  "devDependencies": {
+    "markdown-it-mathjax3": "^4.3.2",
+    "vitepress": "^1.6.4"
+  }
+}
