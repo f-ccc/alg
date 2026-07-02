@@ -17,6 +17,8 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "markdown-it-admonition": "^1.0.4",
+    "markdown-it-container": "^4.0.0",
     "markdown-it-mathjax3": "^4.3.2",
     "vitepress": "^1.6.4"
   }

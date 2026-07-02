@@ -1,4 +1,7 @@
 import { defineConfig } from 'vitepress'
+import { createRequire } from 'module'
+
+const require = createRequire(import.meta.url)
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -28,6 +31,38 @@ export default defineConfig({
     image: { lazyLoading: true },
     // Code copy button
     codeCopyButtonTitle: '复制代码',
+
+    // markdown-it plugins
+    config: (md) => {
+      // !!! admonition 语法 (Python-Markdown 风格)
+      // Usage:
+      //   !!! note "可选标题"
+      //       内容
+      md.use(require('markdown-it-admonition'))
+
+      // ???+ 可折叠详情块 (Material for MkDocs 风格)
+      // Usage:
+      //   ???+ info "标题"
+      //       内容
+      md.use(require('markdown-it-container'), 'details', {
+        validate: (params) => params.trim().match(/^\?\?\?\+?\s*/),
+        render: (tokens, idx) => {
+          const token = tokens[idx]
+          const info = token.info.trim().slice(4).trim() // remove '???+' prefix
+          const titleMatch = info.match(/^"([^"]+)"\s*(.*)$/)
+          const typeMatch = info.match(/^(\w+)\s*/)
+          const title = titleMatch ? titleMatch[1] : '详细信息'
+          const summary = titleMatch ? (titleMatch[2] || '') : (typeMatch ? info.slice(typeMatch[1].length).trim() : '')
+
+          if (token.nesting === 1) {
+            const cssClass = typeMatch ? `details-${typeMatch[1]}` : ''
+            return `<details class="custom-details ${cssClass}" open><summary>${title}</summary>\n`
+          } else {
+            return '</details>\n'
+          }
+        },
+      })
+    },
   },
 
   themeConfig: {

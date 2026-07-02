@@ -129,3 +129,65 @@
 .vp-doc td {
   padding: 0.75em 1em;
 }
+
+/* ============================================
+   Admonition (!!! syntax) — markdown-it-admonition
+   ============================================ */
+.vp-doc .admonition {
+  border-radius: var(--vp-border-radius);
+  margin: 1.5em 0;
+  padding: 0.5rem 1rem;
+  border-left: 4px solid;
+  font-size: 0.95rem;
+  background: var(--vp-c-bg-alt);
+}
+.vp-doc .admonition-title {
+  font-weight: 600;
+  margin-bottom: 0.5em;
+}
+/* Note */
+.vp-doc .admonition.note { border-left-color: #3b82f6; }
+.vp-doc .admonition.note .admonition-title { color: #3b82f6; }
+/* Tip */
+.vp-doc .admonition.tip { border-left-color: #10b981; }
+.vp-doc .admonition.tip .admonition-title { color: #10b981; }
+/* Warning */
+.vp-doc .admonition.warning { border-left-color: #f59e0b; }
+.vp-doc .admonition.warning .admonition-title { color: #f59e0b; }
+/* Danger */
+.vp-doc .admonition.danger { border-left-color: #ef4444; }
+.vp-doc .admonition.danger .admonition-title { color: #ef4444; }
+/* Info */
+.vp-doc .admonition.info { border-left-color: #06b6d4; }
+.vp-doc .admonition.info .admonition-title { color: #06b6d4; }
+/* Success */
+.vp-doc .admonition.success { border-left-color: #22c55e; }
+.vp-doc .admonition.success .admonition-title { color: #22c55e; }
+
+/* ============================================
+   Collapsible Details (???+ syntax)
+   ============================================ */
+.vp-doc .custom-details {
+  border-radius: var(--vp-border-radius);
+  margin: 1.5em 0;
+  padding: 0.75rem 1rem;
+  background: var(--vp-c-bg-alt);
+  border: 1px solid var(--vp-c-border);
+}
+.vp-doc .custom-details summary {
+  font-weight: 600;
+  cursor: pointer;
+  user-select: none;
+  color: var(--vp-c-brand-1);
+}
+.vp-doc .custom-details summary:hover {
+  opacity: 0.8;
+}
+.vp-doc .custom-details .content {
+  margin-top: 0.75rem;
+}
+
+/* Dark mode adjustments */
+.dark .vp-doc .admonition {
+  background: var(--vp-c-bg-alt);
+}

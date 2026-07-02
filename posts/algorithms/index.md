@@ -6,8 +6,8 @@ LeetCode、Codeforces、AtCoder 等平台的算法题目详细题解。
 
 - [动态规划](dp.md)
 - [二分查找](binary-search.md)
-- [图论](graph.md)
-
+- [图论](graph.md) 
+- [并查集](dsu.md)
 ---
 
 *文章陆续添加中...*
