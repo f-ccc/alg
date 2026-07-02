@@ -96,7 +96,7 @@ export default defineConfig({
 
     // Social links
     socialLinks: [
-      { icon: 'github', link: 'https://github.com/YOUR_USERNAME/algorithm-blog' },
+      { icon: 'github', link: 'https://github.com/f-ccc/ac-algorithms' },
     ],
 
     // Footer
@@ -131,6 +131,7 @@ export default defineConfig({
           text: '算法',
           items: [
             { text: '概览', link: '/posts/algorithms/' },
+            { text: '洛谷 P1551 亲戚（并查集）', link: '/posts/algorithms/luogu-p1551-亲戚' },
           ],
         },
       ],
@@ -166,7 +167,7 @@ export default defineConfig({
 
   // Sitemap generation
   sitemap: {
-    hostname: 'https://YOUR_DOMAIN.com',
+    hostname: 'https://ac.fccc.xyz',
   },
 
   // Head tags
