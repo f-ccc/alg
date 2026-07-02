@@ -131,7 +131,7 @@
 }
 
 /* ============================================
-   Admonition (!!! syntax) — markdown-it-admonition
+   Admonition (!!! syntax) — 兼容 OI-wiki 全部类型
    ============================================ */
 .vp-doc .admonition {
   border-radius: var(--vp-border-radius);
@@ -145,27 +145,40 @@
   font-weight: 600;
   margin-bottom: 0.5em;
 }
-/* Note */
-.vp-doc .admonition.note { border-left-color: #3b82f6; }
-.vp-doc .admonition.note .admonition-title { color: #3b82f6; }
-/* Tip */
-.vp-doc .admonition.tip { border-left-color: #10b981; }
-.vp-doc .admonition.tip .admonition-title { color: #10b981; }
-/* Warning */
-.vp-doc .admonition.warning { border-left-color: #f59e0b; }
-.vp-doc .admonition.warning .admonition-title { color: #f59e0b; }
-/* Danger */
-.vp-doc .admonition.danger { border-left-color: #ef4444; }
-.vp-doc .admonition.danger .admonition-title { color: #ef4444; }
-/* Info */
-.vp-doc .admonition.info { border-left-color: #06b6d4; }
-.vp-doc .admonition.info .admonition-title { color: #06b6d4; }
-/* Success */
-.vp-doc .admonition.success { border-left-color: #22c55e; }
-.vp-doc .admonition.success .admonition-title { color: #22c55e; }
+.vp-doc .admonition :first-child {
+  margin-top: 0;
+}
+.vp-doc .admonition :last-child {
+  margin-bottom: 0;
+}
+/* 颜色主题 — 与 OI-wiki / Material for MkDocs 一致 */
+.vp-doc .admonition.note     { border-left-color: #448aff; }
+.vp-doc .admonition.note .admonition-title     { color: #448aff; }
+.vp-doc .admonition.abstract { border-left-color: #00b0ff; }
+.vp-doc .admonition.abstract .admonition-title { color: #00b0ff; }
+.vp-doc .admonition.info     { border-left-color: #00b8d4; }
+.vp-doc .admonition.info .admonition-title     { color: #00b8d4; }
+.vp-doc .admonition.tip      { border-left-color: #00bfa5; }
+.vp-doc .admonition.tip .admonition-title      { color: #00bfa5; }
+.vp-doc .admonition.success  { border-left-color: #64dd17; }
+.vp-doc .admonition.success .admonition-title  { color: #64dd17; }
+.vp-doc .admonition.question { border-left-color: #64dd17; }
+.vp-doc .admonition.question .admonition-title { color: #64dd17; }
+.vp-doc .admonition.warning  { border-left-color: #ff9100; }
+.vp-doc .admonition.warning .admonition-title  { color: #ff9100; }
+.vp-doc .admonition.failure  { border-left-color: #ff5252; }
+.vp-doc .admonition.failure .admonition-title  { color: #ff5252; }
+.vp-doc .admonition.danger   { border-left-color: #ff1744; }
+.vp-doc .admonition.danger .admonition-title   { color: #ff1744; }
+.vp-doc .admonition.bug      { border-left-color: #ff1744; }
+.vp-doc .admonition.bug .admonition-title      { color: #ff1744; }
+.vp-doc .admonition.example  { border-left-color: #7c4dff; }
+.vp-doc .admonition.example .admonition-title  { color: #7c4dff; }
+.vp-doc .admonition.quote    { border-left-color: #9e9e9e; }
+.vp-doc .admonition.quote .admonition-title    { color: #9e9e9e; }
 
 /* ============================================
-   Collapsible Details (???+ syntax)
+   Collapsible Details (??? / ???+ syntax)
    ============================================ */
 .vp-doc .custom-details {
   border-radius: var(--vp-border-radius);
@@ -183,11 +196,75 @@
 .vp-doc .custom-details summary:hover {
   opacity: 0.8;
 }
-.vp-doc .custom-details .content {
-  margin-top: 0.75rem;
+.vp-doc .custom-details[open] {
+  padding-bottom: 0.75rem;
 }
 
-/* Dark mode adjustments */
+/* ============================================
+   ==高亮== (mark)
+   ============================================ */
+.vp-doc mark {
+  background: #fff176;
+  color: #1a1a2e;
+  padding: 0.1em 0.2em;
+  border-radius: 3px;
+}
+.dark .vp-doc mark {
+  background: #5e4a00;
+  color: #e4e4e7;
+}
+
+/* ============================================
+   ++下划线++ (ins)
+   ============================================ */
+.vp-doc ins {
+  text-decoration: none;
+  border-bottom: 2px solid #22c55e;
+  background: rgba(34, 197, 94, 0.1);
+  padding: 0 0.1em;
+  border-radius: 2px;
+}
+
+/* ============================================
+   H~2~O 下标 / X^2^ 上标
+   ============================================ */
+.vp-doc sub { font-size: 0.75em; color: var(--vp-c-text-mute); }
+.vp-doc sup { font-size: 0.75em; color: var(--vp-c-text-mute); }
+
+/* ============================================
+   定义列表 (deflist)
+   ============================================ */
+.vp-doc dl {
+  margin: 1.5em 0;
+  padding: 0.5rem 1rem;
+  background: var(--vp-c-bg-alt);
+  border-radius: var(--vp-border-radius);
+  border: 1px solid var(--vp-c-border);
+}
+.vp-doc dt {
+  font-weight: 600;
+  margin-top: 0.75em;
+  color: var(--vp-c-brand-1);
+}
+.vp-doc dt:first-child { margin-top: 0; }
+.vp-doc dd {
+  margin: 0.25em 0 0 1.5em;
+  color: var(--vp-c-text-mute);
+}
+
+/* ============================================
+   - [x] 任务列表
+   ============================================ */
+.vp-doc .task-list-item {
+  list-style: none;
+  margin-left: -1.5em;
+}
+.vp-doc .task-list-item input[type="checkbox"] {
+  margin-right: 0.5em;
+  accent-color: var(--vp-c-brand-1);
+}
+
+/* Dark mode */
 .dark .vp-doc .admonition {
   background: var(--vp-c-bg-alt);
 }

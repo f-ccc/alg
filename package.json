@@ -17,9 +17,17 @@
   ],
   "license": "MIT",
   "devDependencies": {
+    "markdown-it-abbr": "^2.0.0",
     "markdown-it-admonition": "^1.0.4",
     "markdown-it-container": "^4.0.0",
+    "markdown-it-deflist": "^3.0.1",
+    "markdown-it-emoji": "^3.0.0",
+    "markdown-it-ins": "^4.0.0",
+    "markdown-it-mark": "^4.0.0",
     "markdown-it-mathjax3": "^4.3.2",
+    "markdown-it-sub": "^2.0.0",
+    "markdown-it-sup": "^2.0.0",
+    "markdown-it-task-lists": "^2.1.1",
     "vitepress": "^1.6.4"
   }
 }

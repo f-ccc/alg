@@ -32,36 +32,52 @@ export default defineConfig({
     // Code copy button
     codeCopyButtonTitle: '复制代码',
 
-    // markdown-it plugins
+    // markdown-it plugins — 兼容 OI-wiki / Material for MkDocs 语法
     config: (md) => {
-      // !!! admonition 语法 (Python-Markdown 风格)
-      // Usage:
-      //   !!! note "可选标题"
-      //       内容
+      // !!! admonition (Python-Markdown / Material for MkDocs 风格)
+      //   !!! note "标题"    !!! tip ""    !!! warning ""    !!! danger ""
+      //   !!! info ""  !!! abstract ""  !!! question ""  !!! success ""
+      //   !!! failure ""  !!! bug ""  !!! example ""  !!! quote ""
       md.use(require('markdown-it-admonition'))
 
-      // ???+ 可折叠详情块 (Material for MkDocs 风格)
-      // Usage:
-      //   ???+ info "标题"
-      //       内容
+      // ??? / ???+ 可折叠详情块 (Material for MkDocs)
+      //   ??? note "标题"       → 默认折叠
+      //   ???+ warning "标题"   → 默认展开
       md.use(require('markdown-it-container'), 'details', {
-        validate: (params) => params.trim().match(/^\?\?\?\+?\s*/),
+        validate: (params) => params.trim().match(/^\?\?\??\+?\s*/),
         render: (tokens, idx) => {
-          const token = tokens[idx]
-          const info = token.info.trim().slice(4).trim() // remove '???+' prefix
-          const titleMatch = info.match(/^"([^"]+)"\s*(.*)$/)
-          const typeMatch = info.match(/^(\w+)\s*/)
-          const title = titleMatch ? titleMatch[1] : '详细信息'
-          const summary = titleMatch ? (titleMatch[2] || '') : (typeMatch ? info.slice(typeMatch[1].length).trim() : '')
+          const t = tokens[idx]
+          const raw = t.info.trim()
+          const isExpanded = raw.startsWith('???+')
+          const content = raw.slice(isExpanded ? 4 : 3).trim()
+          const typeMatch = content.match(/^(\w+)\s*/)
+          const titleMatch = content.match(/^"([^"]+)"\s*(.*)$/)
+          const title = titleMatch ? titleMatch[1] : (typeMatch ? content.slice(typeMatch[1].length).trim() || typeMatch[1] : content || '详细信息')
 
-          if (token.nesting === 1) {
+          if (t.nesting === 1) {
             const cssClass = typeMatch ? `details-${typeMatch[1]}` : ''
-            return `<details class="custom-details ${cssClass}" open><summary>${title}</summary>\n`
-          } else {
-            return '</details>\n'
+            return `<details class="custom-details ${cssClass}"${isExpanded ? ' open' : ''}><summary>${title}</summary>\n`
           }
+          return '</details>\n'
         },
       })
+
+      // ==高亮== (mark)
+      md.use(require('markdown-it-mark'))
+      // ~~删除线~~ (已内置) + ++下划线++ (ins)
+      md.use(require('markdown-it-ins'))
+      // H~2~O 下标
+      md.use(require('markdown-it-sub'))
+      // X^2^ 上标
+      md.use(require('markdown-it-sup'))
+      // 定义列表
+      md.use(require('markdown-it-deflist'))
+      // 缩写 abbr
+      md.use(require('markdown-it-abbr'))
+      // :emoji: 表情
+      md.use(require('markdown-it-emoji').full)
+      // - [x] 任务列表
+      md.use(require('markdown-it-task-lists'))
     },
   },
 
