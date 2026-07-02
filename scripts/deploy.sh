@@ -9,8 +9,8 @@
 set -euo pipefail
 
 # Configuration — edit these before first run
-DOMAIN="${DOMAIN:-algoblog.example.com}"
-EMAIL="${EMAIL:-admin@example.com}"
+DOMAIN="${DOMAIN:-ac.fccc.xyz}"
+EMAIL="${EMAIL:-admin@fccc.xyz}"
 SITE_DIR="/var/www/algoblog"
 NGINX_CONF="/etc/nginx/sites-available/algoblog"
 NGINX_ENABLED="/etc/nginx/sites-enabled/algoblog"
