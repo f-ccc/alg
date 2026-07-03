@@ -35,82 +35,31 @@ export default defineConfig({
     // markdown-it plugins — 兼容 OI-wiki / Material for MkDocs 语法
     config: (md) => {
       // !!! admonition (Python-Markdown / Material for MkDocs 风格)
+      //   !!! note "标题"    !!! tip ""    !!! warning ""    !!! danger ""
+      //   !!! info ""  !!! abstract ""  !!! question ""  !!! success ""
+      //   !!! failure ""  !!! bug ""  !!! example ""  !!! quote ""
       md.use(require('markdown-it-admonition'))
 
-      // ??? / ???+ → 预处理器转换为 ::: details 语法
-      // 然后用 markdown-it-container 渲染
-      const containerDetails = require('markdown-it-container')
-      md.use(containerDetails, 'details', {
+      // ??? / ???+ 可折叠详情块 (Material for MkDocs)
+      //   ??? note "标题"       → 默认折叠
+      //   ???+ warning "标题"   → 默认展开
+      md.use(require('markdown-it-container'), 'details', {
+        validate: (params) => params.trim().match(/^\?\?\??\+?\s*/),
         render: (tokens, idx) => {
-          if (tokens[idx].nesting === 1) {
-            const raw = tokens[idx].info.trim()
-            const expanded = raw.startsWith('+')
-            const rest = expanded ? raw.slice(1).trim() : raw
-            const typeMatch = rest.match(/^(\w+)\s*/)
-            const type = typeMatch ? typeMatch[1].toLowerCase() : ''
-            const afterType = typeMatch ? rest.slice(typeMatch[0].length).trim() : rest
-            const titleMatch = afterType.match(/^"([^"]*)"\s*(.*)$/)
-            const title = titleMatch ? titleMatch[1] : (afterType || type || '详细信息')
-            const typeClass = type ? ` details-${type}` : ''
-            return `<details class="custom-details${typeClass}"${expanded ? ' open' : ''}><summary>${md.utils.escapeHtml(title)}</summary>\n`
+          const t = tokens[idx]
+          const raw = t.info.trim()
+          const isExpanded = raw.startsWith('???+')
+          const content = raw.slice(isExpanded ? 4 : 3).trim()
+          const typeMatch = content.match(/^(\w+)\s*/)
+          const titleMatch = content.match(/^"([^"]+)"\s*(.*)$/)
+          const title = titleMatch ? titleMatch[1] : (typeMatch ? content.slice(typeMatch[1].length).trim() || typeMatch[1] : content || '详细信息')
+
+          if (t.nesting === 1) {
+            const cssClass = typeMatch ? `details-${typeMatch[1]}` : ''
+            return `<details class="custom-details ${cssClass}"${isExpanded ? ' open' : ''}><summary>${title}</summary>\n`
           }
           return '</details>\n'
         },
-      })
-
-      // 预处理器：??? / ???+  →  ::: details (在 block tokenize 之前运行)
-      md.core.ruler.before('block', 'details_transform', (state) => {
-        const lines = state.src.split('\n')
-        const result = []
-        let i = 0
-        while (i < lines.length) {
-          const line = lines[i]
-          const match = line.match(/^(\s*)(\?\?\??\+?)(\s*.*)$/)
-          if (match && match[1].length === 0 && match[2].length >= 3) {
-            const marker = match[2]  // ??? or ???+
-            const rest = match[3].trim()
-            const isExpanded = marker === '???+'
-
-            // Find close: next ???/???+, ?!!, or end
-            let closeIdx = -1
-            for (let j = i + 1; j < lines.length; j++) {
-              const nextLine = lines[j].trim()
-              if (nextLine === '?!!') {
-                closeIdx = j
-                lines[j] = ':::'  // Replace ?!! with close marker
-                break
-              }
-              if (nextLine.match(/^\?\?\??\+?\s/) || nextLine === '???' || nextLine === '???+') {
-                closeIdx = j  // Let the next iteration handle it
-                break
-              }
-              // Also check for non-indented content that's not continuation
-              if (nextLine.length > 0 && !nextLine.startsWith(' ') && !nextLine.startsWith('\t') && nextLine !== '') {
-                // Non-indented text that isn't a continuation of indented content
-                // Only close if the content before was indented
-                // This is tricky, so we just rely on ???/?!! markers
-              }
-            }
-            if (closeIdx === -1) closeIdx = lines.length
-
-            // Convert opening
-            let params = rest
-            if (isExpanded) params = '+ ' + params
-            result.push('::: details ' + params)
-            i++
-            // Copy content lines
-            while (i < closeIdx) {
-              result.push(lines[i])
-              i++
-            }
-            // Add close marker
-            result.push(':::')
-          } else {
-            result.push(line)
-            i++
-          }
-        }
-        state.src = result.join('\n')
       })
 
       // ==高亮== (mark)
