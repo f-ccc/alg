@@ -40,6 +40,36 @@ export default defineConfig({
       //   !!! failure ""  !!! bug ""  !!! example ""  !!! quote ""
       md.use(require('markdown-it-admonition'))
 
+      // ??? / ???+ → <details><summary> (用 markdown-it-container marker:? 现成 API)
+      //   对应 Python pymdownx.details 扩展的输出 HTML
+      //   用法:
+      //     ??? note "Title"        折叠
+      //     ???+ warning "Title"    默认展开
+      //     ??? (单独一行)          关闭块
+      md.use(require('markdown-it-container'), 'details', {
+        marker: '?',
+        validate: (params) => params.trim().length > 0,
+        render: (tokens, idx) => {
+          if (tokens[idx].nesting === 1) {
+            let info = tokens[idx].info.trim()
+            let expanded = false
+            if (info.startsWith('+')) {
+              expanded = true
+              info = info.slice(1).trim()
+            }
+            let title = info
+            const typeMatch = info.match(/^(\w+)\s+/)
+            const type = typeMatch ? typeMatch[1].toLowerCase() : ''
+            if (typeMatch) title = info.slice(typeMatch[0].length)
+            const qm = title.match(/^"([^"]*)"\s*(.*)$/)
+            if (qm) title = qm[1]
+            const cls = type ? ` details-${type}` : ''
+            return `<details class="custom-details${cls}"${expanded ? ' open' : ''}><summary>${md.utils.escapeHtml(title || '详细信息')}</summary>\n`
+          }
+          return '</details>\n'
+        },
+      })
+
       // ==高亮== (mark)
       md.use(require('markdown-it-mark'))
       // ~~删除线~~ (已内置) + ++下划线++ (ins)
