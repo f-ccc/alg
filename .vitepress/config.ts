@@ -40,28 +40,6 @@ export default defineConfig({
       //   !!! failure ""  !!! bug ""  !!! example ""  !!! quote ""
       md.use(require('markdown-it-admonition'))
 
-      // ??? / ???+ 可折叠详情块 (Material for MkDocs)
-      //   ??? note "标题"       → 默认折叠
-      //   ???+ warning "标题"   → 默认展开
-      md.use(require('markdown-it-container'), 'details', {
-        validate: (params) => params.trim().match(/^\?\?\??\+?\s*/),
-        render: (tokens, idx) => {
-          const t = tokens[idx]
-          const raw = t.info.trim()
-          const isExpanded = raw.startsWith('???+')
-          const content = raw.slice(isExpanded ? 4 : 3).trim()
-          const typeMatch = content.match(/^(\w+)\s*/)
-          const titleMatch = content.match(/^"([^"]+)"\s*(.*)$/)
-          const title = titleMatch ? titleMatch[1] : (typeMatch ? content.slice(typeMatch[1].length).trim() || typeMatch[1] : content || '详细信息')
-
-          if (t.nesting === 1) {
-            const cssClass = typeMatch ? `details-${typeMatch[1]}` : ''
-            return `<details class="custom-details ${cssClass}"${isExpanded ? ' open' : ''}><summary>${title}</summary>\n`
-          }
-          return '</details>\n'
-        },
-      })
-
       // ==高亮== (mark)
       md.use(require('markdown-it-mark'))
       // ~~删除线~~ (已内置) + ++下划线++ (ins)
