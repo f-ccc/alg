@@ -1,5 +1,6 @@
 import { defineConfig } from 'vitepress'
 import { createRequire } from 'module'
+import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 
 const require = createRequire(import.meta.url)
 
@@ -18,9 +19,6 @@ export default defineConfig({
   // Base URL
   base: '/',
 
-  // Last-updated timestamp
-  lastUpdated: true,
-
   // Markdown enhancements
   markdown: {
     // Enable LaTeX math
@@ -28,24 +26,20 @@ export default defineConfig({
     // Show line numbers on code blocks
     lineNumbers: true,
     // Image lazy loading
-    image: { lazyLoading: true },
-    // Code copy button
-    codeCopyButtonTitle: '复制代码',
-
-    // markdown-it plugins — 兼容 OI-wiki / Material for MkDocs 语法
-    config: (md) => {
+    image: {
+      lazyLoading: true,
+    },
+    // Markdown-it plugins — 兼容 OI-wiki / Material for MkDocs 语法
+    config(md) {
       // !!! admonition (Python-Markdown / Material for MkDocs 风格)
-      //   !!! note "标题"    !!! tip ""    !!! warning ""    !!! danger ""
-      //   !!! info ""  !!! abstract ""  !!! question ""  !!! success ""
-      //   !!! failure ""  !!! bug ""  !!! example ""  !!! quote ""
       md.use(require('markdown-it-admonition'))
 
-      // ??? / ???+ → <details><summary> (用 markdown-it-container marker:? 现成 API)
-      //   对应 Python pymdownx.details 扩展的输出 HTML
+      // ??? / ???+ → <details><summary> (用 markdown-it-container marker:? API)
+      //   对应 Python pymdownx.details 扩展
       //   用法:
-      //     ??? note "Title"        折叠
-      //     ???+ warning "Title"    默认展开
-      //     ??? (单独一行)          关闭块
+      //     ??? note "标题"        折叠
+      //     ???+ warning "标题"    默认展开
+      //     ???                   关闭块
       md.use(require('markdown-it-container'), 'details', {
         marker: '?',
         validate: (params) => params.trim().length > 0,
@@ -72,7 +66,7 @@ export default defineConfig({
 
       // ==高亮== (mark)
       md.use(require('markdown-it-mark'))
-      // ~~删除线~~ (已内置) + ++下划线++ (ins)
+      // ++下划线++ (ins)
       md.use(require('markdown-it-ins'))
       // H~2~O 下标
       md.use(require('markdown-it-sub'))
@@ -86,90 +80,53 @@ export default defineConfig({
       md.use(require('markdown-it-emoji').full)
       // - [x] 任务列表
       md.use(require('markdown-it-task-lists'))
+
+      // === 标签页 (vitepress-plugin-tabs)
+      md.use(tabsMarkdownPlugin)
     },
   },
 
-  themeConfig: {
-    // Site identity
-    siteTitle: '算法笔记',
+  // Vite-SSR config (no front-end runtime dependencies to externalize)
+  vite: {
+    ssr: {
+      noExternal: ['vitepress-plugin-tabs'],
+    },
+  },
 
-    // Search — built-in local (full-text, no backend)
+  // Theme configuration
+  themeConfig: {
+    // Search (MiniSearch full-text)
     search: {
       provider: 'local',
       options: {
         locales: {
-          zh: {
+          root: {
             translations: {
-              button: {
-                buttonText: '搜索文章',
-                buttonAriaLabel: '搜索文章',
-              },
-              modal: {
-                noResultsText: '没有找到相关内容',
-                resetButtonTitle: '清除搜索条件',
-                footer: {
-                  selectText: '选择',
-                  navigateText: '切换',
-                },
-              },
+              button: { buttonText: '搜索文章', buttonAriaLabel: '搜索' },
+              modal: { noResultsText: '没有找到相关结果', resetButtonTitle: '清除搜索条件' },
             },
           },
         },
       },
     },
 
-    // Social links
-    socialLinks: [
-      { icon: 'github', link: 'https://github.com/f-ccc/ac-algorithms' },
-    ],
-
-    // Footer
-    footer: {
-      message: '以题会友，以码明志',
-      copyright: 'Copyright © 2026',
-    },
-
-    // Outline (table of contents) shown on the right
-    outline: {
-      level: [2, 3],
-      label: '目录',
-    },
-
-    // Last updated text
-    lastUpdatedText: '最后更新',
-
     // Navigation bar
     nav: [
       { text: '首页', link: '/' },
-      { text: '算法', link: '/posts/algorithms/' },
-      { text: '数据结构', link: '/posts/data-structures/' },
-      { text: '竞赛记录', link: '/posts/contest/' },
-      { text: '代码模板', link: '/posts/templates/' },
+      { text: '题解', link: '/posts/contest/' },
+      { text: '模板', link: '/posts/templates/' },
       { text: '标签', link: '/tags/' },
     ],
 
-    // Sidebar (category-based)
+    socialLinks: [
+      { icon: 'github', link: 'https://github.com/f-ccc/alg' },
+    ],
+
+    // Sidebar
     sidebar: {
-      '/posts/algorithms/': [
-        {
-          text: '算法',
-          items: [
-            { text: '概览', link: '/posts/algorithms/' },
-            { text: '洛谷 P1551 亲戚（并查集）', link: '/posts/algorithms/luogu-p1551-亲戚' },
-          ],
-        },
-      ],
-      '/posts/data-structures/': [
-        {
-          text: '数据结构',
-          items: [
-            { text: '概览', link: '/posts/data-structures/' },
-          ],
-        },
-      ],
       '/posts/contest/': [
         {
-          text: '竞赛记录',
+          text: '题解',
           items: [
             { text: '概览', link: '/posts/contest/' },
           ],
@@ -177,7 +134,7 @@ export default defineConfig({
       ],
       '/posts/templates/': [
         {
-          text: '代码模板',
+          text: '模板',
           items: [
             { text: '概览', link: '/posts/templates/' },
           ],
