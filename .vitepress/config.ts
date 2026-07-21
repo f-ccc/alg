@@ -137,6 +137,11 @@ export default defineConfig({
           text: '模板',
           items: [
             { text: '概览', link: '/posts/templates/' },
+            { text: '头文件 / 约束', link: '/posts/templates/约束' },
+            { text: '并查集', link: '/posts/templates/并查集' },
+            { text: '树状数组', link: '/posts/templates/树状数组' },
+            { text: '线段树', link: '/posts/templates/线段树' },
+            { text: 'ST 表', link: '/posts/templates/st表' },
           ],
         },
       ],
