@@ -52,7 +52,4 @@ npm run preview
 ├── scripts/                   # 工具脚本
 └── index.md                   # 首页
 ```
-
-## 许可
-
-MIT
+    

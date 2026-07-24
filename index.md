@@ -1,3 +1,3 @@
 # algorithms
 
-- [二分答案](posts\algorithms\binary.md)
+- [二分](posts\algorithms\binary.md)
