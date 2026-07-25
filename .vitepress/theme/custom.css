@@ -26,7 +26,7 @@
   --vp-border-radius: 8px;
 
   /* Content width - slightly wider for code */
-  --vp-content-max-width: 860px;
+  --vp-content-max-width: 960px;
 }
 
 /* --- Dark Mode Overrides --- */
@@ -104,14 +104,6 @@
   border-bottom: 1px solid var(--vp-c-divider);
 }
 
-/* --- Sidebar --- */
-.VPSidebar {
-  padding-top: 24px;
-}
-
-.VPSidebarItem .text {
-  font-size: 0.9rem;
-}
 
 /* --- Custom Block / Callout --- */
 .vp-doc .custom-block {
@@ -976,4 +968,66 @@
   .hero-text { padding: 12px 16px 36px; }
   .home-section { padding: 36px 16px; }
 }
+
+
+/* ============================================
+   页面布局：aside / 内容区间距优化
+   ============================================ */
+/* 右侧 TOC 容器 — 减小与主内容间距 */
+.VPDoc .aside {
+  padding-left: 16px !important;
+}
+.VPDoc .aside-container {
+  width: 200px !important;
+}
+
+
+/* ============================================
+   右侧 TOC (文章目录) 样式
+   ============================================ */
+/* 自定义目录标题 — 显示在 aside-top 插槽 */
+.custom-outline-title {
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--vp-c-text-2);
+  padding: 8px 12px 6px 12px;
+  border-bottom: 1px solid var(--vp-c-divider);
+  margin: 0 0 6px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  letter-spacing: 0.02em;
+}
+
+/* Outline 容器重置 — 去除默认标题占位 */
+.VPDocAsideOutline .title {
+  display: none;
+}
+
+/* Outline 链接通用样式 */
+.VPDocAsideOutline .outline-link {
+  font-size: 0.82rem;
+  line-height: 1.6;
+  padding: 3px 12px;
+  border-left: 2px solid transparent;
+  transition: color 0.2s, border-color 0.2s;
+}
+
+.VPDocAsideOutline .outline-link:hover {
+  color: var(--vp-c-brand-1);
+}
+
+.VPDocAsideOutline .outline-link.active {
+  color: var(--vp-c-brand-1);
+  border-left-color: var(--vp-c-brand-1);
+  font-weight: 600;
+}
+
+/* h3 级链接额外缩进 */
+.VPDocAsideOutline ul ul .outline-link {
+  padding-left: 24px;
+  font-size: 0.8rem;
+}
+
+
 

@@ -113,6 +113,7 @@ export default defineConfig({
     // Navigation bar
     nav: [
       { text: '首页', link: '/' },
+      { text: '算法', link: '/posts/algorithms/'},
       { text: '题解', link: '/posts/contest/' },
       { text: '模板', link: '/posts/templates/' },
       { text: '标签', link: '/tags/' },
@@ -122,30 +123,68 @@ export default defineConfig({
       { icon: 'github', link: 'https://github.com/f-ccc/alg' },
     ],
 
-    // Sidebar
+    // 右侧文章目录（大纲）
+    outline: {
+      level: [2, 3],
+      label: ' ',
+    },
+
+    // 左侧导航栏（侧边栏）
     sidebar: {
+      '/posts/algorithms/': [
+        {
+          text: '算法文章',
+          collapsed: true,
+          items: [
+            // { text: '二分查找', link: '/posts/algorithms/binary' },
+            // { text: '并查集', link: '/posts/algorithms/dsu' },
+          ],
+        },
+      ],
       '/posts/contest/': [
         {
-          text: '题解',
+          text: '竞赛题解',
+          collapsed: true,
           items: [
-            { text: '概览', link: '/posts/contest/' },
+            {
+              text: '牛客',
+              collapsed: true,
+              items: [
+                { text: '26牛客暑假多校2', link: '/posts/contest/牛客/26牛客暑假多校2' },
+              ],
+            },
           ],
         },
       ],
       '/posts/templates/': [
         {
-          text: '模板',
+          text: '算法模板',
+          collapsed: true,
           items: [
-            { text: '概览', link: '/posts/templates/' },
-            { text: '头文件 / 约束', link: '/posts/templates/约束' },
-            { text: '并查集', link: '/posts/templates/并查集' },
-            { text: '树状数组', link: '/posts/templates/树状数组' },
-            { text: '线段树', link: '/posts/templates/线段树' },
-            { text: 'ST 表', link: '/posts/templates/st表' },
+            { text: '头文件', link: '/posts/templates/约束' },
+            {
+              text: '数据结构',
+              collapsed: true,
+              items: [
+                { text: '并查集', link: '/posts/templates/并查集' },
+                { text: '树状数组', link: '/posts/templates/树状数组' },
+                { text: '线段树', link: '/posts/templates/线段树' },
+                { text: 'st表', link: '/posts/templates/st表' },
+              ],
+            },
+            {
+              text: '树上问题',
+              collapsed: true,
+              items: [
+                { text: '树的直径', link: '/posts/templates/树的直径' },
+                { text: '最近公共祖先LCA', link: '/posts/templates/最近公共祖先LCA' },
+              ],
+            },
           ],
         },
       ],
     },
+
   },
 
   // Build output directory
