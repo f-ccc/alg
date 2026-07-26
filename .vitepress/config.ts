@@ -95,20 +95,7 @@ export default defineConfig({
 
   // Theme configuration
   themeConfig: {
-    // Search (MiniSearch full-text)
-    search: {
-      provider: 'local',
-      options: {
-        locales: {
-          root: {
-            translations: {
-              button: { buttonText: '搜索文章', buttonAriaLabel: '搜索' },
-              modal: { noResultsText: '没有找到相关结果', resetButtonTitle: '清除搜索条件' },
-            },
-          },
-        },
-      },
-    },
+    // 禁用内置搜索，使用自定义搜索弹窗（Ctrl+K 呼出）
 
     // Navigation bar
     nav: [
