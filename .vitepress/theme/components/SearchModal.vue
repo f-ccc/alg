@@ -66,7 +66,7 @@ import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useDebounce } from '@vueuse/core'
 import { highlightText } from '../utils/highlight'
 
-/* ---------- posts data - 全文自动收集 ---------- */
+/* ---------- posts data - from Vite plugin (avoid import.meta.glob HMR crash) ---------- */
 interface Post {
   title: string
   desc: string
@@ -80,72 +80,9 @@ interface ScoredItem {
   score: number
 }
 
-// 导入所有 markdown 文件
-const mdModules = import.meta.glob('/posts/**/*.md', {
-  eager: true,
-  query: '?raw',
-  import: 'default',
-})
-
-function stripFrontmatter(src: string): string {
-  return src.replace(/---[\s\S]*?---/, '')
-}
-
-function parseFrontmatter(src: string): Record<string, string> {
-  const m = src.match(/^---\n([\s\S]*?)\n---/)
-  if (!m) return {}
-  const fm: Record<string, string> = {}
-  for (const line of m[1].split('\n')) {
-    const kv = line.match(/^(\w+):\s*(.+)$/)
-    if (kv) fm[kv[1]] = kv[2].replace(/^['"](.*)['"]$/, '$1')
-  }
-  return fm
-}
-
-function plainText(md: string): string {
-  return stripFrontmatter(md)
-    .replace(/[#*`~\[\]()>|\\:]/g, ' ')
-    .replace(/---/g, ' ')
-    .replace(/\s+/g, ' ')
-    .trim()
-}
-
-function extractTitle(md: string): string {
-  // 优先取 frontmatter title
-  const fm = parseFrontmatter(md)
-  if (fm.title) return fm.title
-  // 否则取正文第一个 # / * 标题
-  const src = stripFrontmatter(md)
-  const m = src.match(/^[#*]\s+(.+)$/m)
-  return m ? m[1].trim() : ''
-}
-
-function extractDesc(md: string): string {
-  const src = stripFrontmatter(md)
-  // 取第一段非空纯文字（源代码行，跳过标题和代码块）
-  const lines = src.split('\n')
-  for (const line of lines) {
-    const t = line.replace(/[#*`\[\]]/g, '').trim()
-    if (t && !t.startsWith('```') && !t.startsWith('>') && !t.startsWith('-')) {
-      return t.length > 120 ? t.slice(0, 120) + '…' : t
-    }
-  }
-  return ''
-}
-
-function pathToUrl(filePath: string): string {
-  // /posts/xxx/yyy.md → /posts/xxx/yyy
-  return filePath.replace(/^\/posts\//, '/posts/').replace(/\.md$/, '')
-}
-
-const posts: Post[] = Object.entries(mdModules)
-  .filter(([path]) => !path.endsWith('index.md'))
-  .map(([path, src]) => ({
-    title: extractTitle(src as string),
-    desc: extractDesc(src as string),
-    text: plainText(src as string),
-    link: pathToUrl(path),
-  }))
+// 通过 Vite 虚拟模块导入，避免 Vite 5.x 中 import.meta.glob 的 HMR 崩溃
+import searchIndex from 'virtual:search-index'
+const posts: Post[] = searchIndex
 
 /* ---------- state ---------- */
 const visible = ref(false)

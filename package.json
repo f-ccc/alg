@@ -29,7 +29,7 @@
     "markdown-it-sup": "^2.0.0",
     "markdown-it-task-lists": "^2.1.1",
     "vitepress": "^1.6.4",
-    "vitepress-plugin-tabs": "^0.9.0",
-    "vitepress-plugin-rss": "^0.4.4"
+    "vitepress-plugin-rss": "^0.4.4",
+    "vitepress-plugin-tabs": "^0.9.0"
   }
 }

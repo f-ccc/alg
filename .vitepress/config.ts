@@ -1,6 +1,7 @@
 import { defineConfig } from 'vitepress'
 import { createRequire } from 'module'
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
+import { searchIndexPlugin } from './plugins/search-index'
 
 const require = createRequire(import.meta.url)
 
@@ -88,8 +89,27 @@ export default defineConfig({
 
   // Vite-SSR config (no front-end runtime dependencies to externalize)
   vite: {
+    plugins: [searchIndexPlugin()],
     ssr: {
       noExternal: ['vitepress-plugin-tabs'],
+    },
+    server: {
+      // 禁用 HMR 错误覆盖层 — Vite 5.x glob HMR 已知问题
+      hmr: {
+        overlay: false,
+      },
+      // 避免 PDF 等非源码文件触发 HMR 更新导致 propagateUpdate 崩溃
+      watch: {
+        ignored: [
+          '**/*.pdf',
+          '**/*.png',
+          '**/*.jpg',
+          '**/*.jpeg',
+          '**/*.gif',
+          '**/*.svg',
+          '**/*.ico',
+        ],
+      },
     },
   },
 
@@ -138,6 +158,7 @@ export default defineConfig({
               collapsed: true,
               items: [
                 { text: '26牛客暑假多校2', link: '/posts/contest/牛客/26牛客暑假多校2' },
+                { text: '26牛客暑假多校3', link: '/posts/contest/牛客/26牛客暑假多校3' }
               ],
             },
           ],
