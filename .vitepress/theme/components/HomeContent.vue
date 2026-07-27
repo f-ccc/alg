@@ -64,9 +64,32 @@ const categories = [
   },
 ]
 
+// #f97316  orange-500 橙
+// #f59e0b  amber-500   琥珀黄
+// #eab308  yellow-500 亮黄
+// #84cc16  lime-500    青柠绿
+// #22c55e  green-500   草绿
+// #10b981  emerald-500 翡翠绿
+// #14b8a6  teal-500    水鸭青
+// #06b6d4  cyan-500    浅青蓝
+// #0ea5e9  sky-500     天蓝色
+// #3b82f6  blue-500    原版蓝
+// #6366f1  indigo-500  靛蓝
+// #8b5cf6  violet-500 紫罗兰
+// #a855f7  purple-500  紫色
+// #ec4899  pink-500    粉色
+// #f43f5e  rose-500    玫红
 const posts = [
+  {
+    title: '26牛客暑假多校3',
+    desc: '',
+    link: '/posts/contest/牛客/26牛客暑假多校3',
+    date: '2026-7-24',
+    cat: '题解',
+    color: '#ec4899',
+  },
   { title: '26牛客暑假多校2',
-    desc: 'M,N,B题解',
+    desc: '',
     link: '/posts/contest/牛客/26牛客暑假多校2',
     date: '2026-7-22',
     cat: '题解',
