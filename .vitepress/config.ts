@@ -123,7 +123,7 @@ export default defineConfig({
       { text: '算法', link: '/posts/algorithms/'},
       { text: '题解', link: '/posts/contest/' },
       { text: '模板', link: '/posts/templates/' },
-      { text: '标签', link: '/tags/' },
+      // { text: '标签', link: '/tags/' },
     ],
 
     socialLinks: [
@@ -158,7 +158,9 @@ export default defineConfig({
               collapsed: true,
               items: [
                 { text: '26牛客暑假多校2', link: '/posts/contest/牛客/26牛客暑假多校2' },
-                { text: '26牛客暑假多校3', link: '/posts/contest/牛客/26牛客暑假多校3' }
+                { text: '26牛客暑假多校3', link: '/posts/contest/牛客/26牛客暑假多校3' },
+                { text: '26牛客暑假多校4', link: '/posts/contest/牛客/26牛客暑假多校4' },
+                { text: '26牛客暑假多校5', link: '/posts/contest/牛客/26牛客暑假多校5' }
               ],
             },
           ],
@@ -170,6 +172,8 @@ export default defineConfig({
           collapsed: true,
           items: [
             { text: '头文件', link: '/posts/templates/约束' },
+            { text: '预处理', link: '/posts/templates/预处理' },
+            { text: '质数筛', link: '/posts/templates/质数筛' },
             {
               text: '数据结构',
               collapsed: true,
