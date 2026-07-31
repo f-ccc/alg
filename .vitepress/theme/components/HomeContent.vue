@@ -38,14 +38,14 @@ const categories = [
   { slug: 'alg', 
     name: '算法', 
     link: '/posts/algorithms/', 
-    count: 1, 
+    count: 2, 
     color: '#8b5cf6', 
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>' 
   },
   { slug: 'slove', 
     name: '题解', 
     link: '/posts/contest/', 
-    count: 2, 
+    count: 4, 
     color: '#2563eb', 
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' 
   },
@@ -80,6 +80,22 @@ const categories = [
 // #ec4899  pink-500    粉色
 // #f43f5e  rose-500    玫红
 const posts = [
+  {
+    title: '26牛客暑假多校5',
+    desc: '',
+    link: '/posts/contest/牛客/26牛客暑假多校5',
+    date: '2026-7-31',
+    cat: '题解',
+    color: '#22c55e',
+  },
+  {
+    title: '26牛客暑假多校4',
+    desc: '',
+    link: '/posts/contest/牛客/26牛客暑假多校4',
+    date: '2026-7-29',
+    cat: '题解',
+    color: '#f97316',
+  },
   {
     title: '二维叉积',
     desc: '',
