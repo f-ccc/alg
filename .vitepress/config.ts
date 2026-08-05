@@ -7,8 +7,8 @@ const require = createRequire(import.meta.url)
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
-  title: '算法笔记',
-  description: '个人算法技术博客 — 题解, 数据结构, 竞赛记录与代码模板',
+  title: 'fccc',
+  description: '算法小站',
   lang: 'zh-CN',
 
   // Clean URLs (no .html suffix)
@@ -199,6 +199,9 @@ export default defineConfig({
       ],
     },
 
+    footer: {
+      copyright: '@ 2026 fccc | <a href="https://github.com/f-ccc/alg" target="_blank">GitHub</a>'
+    }
   },
 
   // Build output directory
