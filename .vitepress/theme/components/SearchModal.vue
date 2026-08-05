@@ -53,7 +53,7 @@
           </div>
 
           <div class="result-empty" v-if="!results.length">
-            暂无符合条件的结果
+            {{ loading && !index ? '正在加载索引…' : '暂无符合条件的结果' }}
           </div>
         </div>
       </div>
@@ -62,7 +62,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, watch, onMounted, onUnmounted, nextTick } from 'vue'
+import { ref, shallowRef, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useDebounce } from '@vueuse/core'
 import { highlightText } from '../utils/highlight'
 
@@ -80,9 +80,26 @@ interface ScoredItem {
   score: number
 }
 
-// 通过 Vite 虚拟模块导入，避免 Vite 5.x 中 import.meta.glob 的 HMR 崩溃
-import searchIndex from 'virtual:search-index'
-const posts: Post[] = searchIndex
+// 懒加载虚拟模块：索引被 Rollup 拆成独立 chunk，首次打开搜索框时才下载
+const index = shallowRef<Post[] | null>(null)
+const loading = ref(false)
+let loadPromise: Promise<void> | null = null
+
+function ensureIndex(): void {
+  if (index.value || loadPromise) return
+  loading.value = true
+  loadPromise = import('virtual:search-index')
+    .then((m) => {
+      index.value = m.default
+    })
+    .catch((e) => {
+      loadPromise = null
+      console.error('[search] 索引加载失败:', e)
+    })
+    .finally(() => {
+      loading.value = false
+    })
+}
 
 /* ---------- state ---------- */
 const visible = ref(false)
@@ -100,6 +117,9 @@ function tokenize(s: string): string[] {
 function computeResults(raw: string): ScoredItem[] {
   const terms = tokenize(raw)
   if (!terms.length) return []
+
+  const posts = index.value
+  if (!posts) return []
 
   const scored: ScoredItem[] = []
 
@@ -123,7 +143,8 @@ function computeResults(raw: string): ScoredItem[] {
 }
 
 /* ---------- watcher ---------- */
-watch(debouncedQuery, (q) => {
+// 同时监听索引加载完成，加载后自动重算当前输入
+watch([debouncedQuery, index], ([q]) => {
   results.value = computeResults(q)
   selectedIdx.value = results.value.length ? 0 : -1
 })
@@ -152,6 +173,7 @@ function open() {
   query.value = ''
   results.value = []
   selectedIdx.value = -1
+  ensureIndex()
   nextTick(() => inputRef.value?.focus())
 }
 
@@ -175,8 +197,25 @@ function onKeydown(e: KeyboardEvent) {
   }
 }
 
-onMounted(() => window.addEventListener('keydown', onKeydown))
-onUnmounted(() => window.removeEventListener('keydown', onKeydown))
+let idleHandle: number | undefined
+
+onMounted(() => {
+  window.addEventListener('keydown', onKeydown)
+  // 空闲时预取索引，避免首次打开搜索框时的等待
+  if ('requestIdleCallback' in window) {
+    idleHandle = window.requestIdleCallback(() => ensureIndex())
+  } else {
+    idleHandle = window.setTimeout(() => ensureIndex(), 1000)
+  }
+})
+
+onUnmounted(() => {
+  window.removeEventListener('keydown', onKeydown)
+  if (idleHandle !== undefined) {
+    if ('cancelIdleCallback' in window) window.cancelIdleCallback(idleHandle)
+    else window.clearTimeout(idleHandle)
+  }
+})
 </script>
 
 <style scoped>
