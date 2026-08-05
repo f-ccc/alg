@@ -161,7 +161,7 @@ export default defineConfig({
                 { text: '26牛客暑假多校2', link: '/posts/contest/牛客/26牛客暑假多校2' },
                 { text: '26牛客暑假多校3', link: '/posts/contest/牛客/26牛客暑假多校3' },
                 { text: '26牛客暑假多校4', link: '/posts/contest/牛客/26牛客暑假多校4' },
-                { text: '26牛客暑假多校5', link: '/posts/contest/牛客/26牛客暑假多校5' }.
+                { text: '26牛客暑假多校5', link: '/posts/contest/牛客/26牛客暑假多校5' },
                 { text: '26牛客暑假多校6', link: '/posts/contest/牛客/26牛客暑假多校6' }
               ],
             },
