@@ -47,7 +47,7 @@
               </svg>
               <div class="result-body">
                 <div class="result-title" v-html="highlightText(item.post.title, query)" />
-                <div class="result-desc" v-html="highlightText(item.post.desc, query)" />
+                <div v-if="item.snippet" class="result-desc" v-html="highlightText(item.snippet, query)" />
               </div>
             </a>
           </div>
@@ -64,7 +64,7 @@
 <script setup lang="ts">
 import { ref, shallowRef, watch, onMounted, onUnmounted, nextTick } from 'vue'
 import { useDebounce } from '@vueuse/core'
-import { highlightText } from '../utils/highlight'
+import { highlightText, buildTermPattern } from '../utils/highlight'
 
 /* ---------- posts data - from Vite plugin (avoid import.meta.glob HMR crash) ---------- */
 interface Post {
@@ -78,6 +78,8 @@ interface Post {
 interface ScoredItem {
   post: Post
   score: number
+  /** 关键词在正文中的上下文摘要（单行） */
+  snippet: string
 }
 
 // 懒加载虚拟模块：索引被 Rollup 拆成独立 chunk，首次打开搜索框时才下载
@@ -114,6 +116,29 @@ function tokenize(s: string): string[] {
   return s.toLowerCase().split(/\s+/).filter(Boolean)
 }
 
+/**
+ * 在正文中定位第一个命中的关键词，截取前后文作为单行摘要。
+ * 在原文上做大小写不敏感匹配（不依赖 toLowerCase 索引，避免切片错位）。
+ */
+function extractSnippet(post: Post, terms: string[]): string {
+  const text = post.text
+  if (!text) return ''
+  const pattern = buildTermPattern(terms)
+  if (!pattern) return ''
+  const m = new RegExp(`(${pattern})`, 'i').exec(text)
+  if (!m) return ''
+
+  const idx = m.index
+  const len = m[0].length
+  const BEFORE = 30
+  const AFTER = 60
+  const start = Math.max(0, idx - BEFORE)
+  const end = Math.min(text.length, idx + len + AFTER)
+  const snippet = text.slice(start, end).replace(/\s+/g, ' ').trim()
+  if (!snippet) return ''
+  return (start > 0 ? '…' : '') + snippet + (end < text.length ? '…' : '')
+}
+
 function computeResults(raw: string): ScoredItem[] {
   const terms = tokenize(raw)
   if (!terms.length) return []
@@ -134,7 +159,7 @@ function computeResults(raw: string): ScoredItem[] {
     }
 
     if (score > 0) {
-      scored.push({ post, score })
+      scored.push({ post, score, snippet: extractSnippet(post, terms) })
     }
   }
 
@@ -337,7 +362,9 @@ onUnmounted(() => {
   font-weight: 600;
   line-height: 1.5;
   color: var(--vp-c-text, #1a1a2e);
-  word-break: break-word;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 .result-desc {
   font-size: 0.8rem;
@@ -345,7 +372,7 @@ onUnmounted(() => {
   margin-top: 3px;
   color: var(--vp-c-text-mute, #6b7280);
   display: -webkit-box;
-  -webkit-line-clamp: 2;
+  -webkit-line-clamp: 1;
   -webkit-box-orient: vertical;
   overflow: hidden;
 }
