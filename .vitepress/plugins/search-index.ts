@@ -1,4 +1,4 @@
-import { Plugin } from 'vite'
+import { Plugin, type ViteDevServer } from 'vite'
 import fs from 'fs'
 import path from 'path'
 
@@ -24,7 +24,7 @@ function stripFrontmatter(src: string): string {
   return src.replace(/\r\n/g, '\n').replace(/---[\s\S]*?---/, '')
 }
 
-function parseFrontmatter(src: string): Record<string, string> {
+export function parseFrontmatter(src: string): Record<string, string> {
   const normalized = src.replace(/\r\n/g, '\n')
   const m = normalized.match(/^---\n([\s\S]*?)\n---/)
   if (!m) return {}
@@ -44,7 +44,7 @@ function plainText(md: string): string {
     .trim()
 }
 
-function extractTitle(md: string): string {
+export function extractTitle(md: string): string {
   const fm = parseFrontmatter(md)
   if (fm.title) return fm.title
   const src = stripFrontmatter(md)
@@ -64,7 +64,7 @@ function extractDesc(md: string): string {
   return ''
 }
 
-function pathToUrl(absPath: string, root: string): string {
+export function pathToUrl(absPath: string, root: string): string {
   const relative = path.relative(root, absPath).replace(/\\/g, '/')
   return '/' + relative.replace(/\.md$/, '')
 }
@@ -73,7 +73,7 @@ function pathToUrl(absPath: string, root: string): string {
 /*  Index generation                                                   */
 /* ------------------------------------------------------------------ */
 
-function findMdFiles(dir: string): string[] {
+export function findMdFiles(dir: string): string[] {
   const results: string[] = []
   try {
     for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
@@ -120,7 +120,9 @@ function generateIndex(root: string): PostData[] {
 
 export function searchIndexPlugin(): Plugin {
   let root = ''
+  let postsDir = ''
   let currentIndex: PostData[] = []
+  let viteServer: ViteDevServer | undefined
 
   function rebuild() {
     if (!root) return
@@ -131,11 +133,23 @@ export function searchIndexPlugin(): Plugin {
     }
   }
 
+  /** posts/ 下的文件是否在监听范围内（兼容各平台路径分隔符） */
+  function isUnderPosts(id: string): boolean {
+    if (!postsDir || !id) return false
+    const rel = path.relative(postsDir, id)
+    return !rel.startsWith('..') && !path.isAbsolute(rel)
+  }
+
   return {
     name: 'vitepress-search-index',
 
     configResolved(config) {
       root = config.root
+      postsDir = path.join(root, 'posts')
+    },
+
+    configureServer(server) {
+      viteServer = server
     },
 
     resolveId(id) {
@@ -150,6 +164,15 @@ export function searchIndexPlugin(): Plugin {
 
     buildStart() {
       rebuild()
+    },
+
+    // dev 下文章增删改时重建索引并全量刷新，避免虚拟模块冻结在服务启动时刻
+    watchChange(id) {
+      if (!isUnderPosts(id)) return
+      rebuild()
+      const mod = viteServer?.moduleGraph.getModuleById(RESOLVED_VIRTUAL_MODULE_ID)
+      if (mod) viteServer?.moduleGraph.invalidateModule(mod)
+      viteServer?.ws.send({ type: 'full-reload' })
     },
   }
 }

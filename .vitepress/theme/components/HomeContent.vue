@@ -3,7 +3,6 @@
     <!-- 标题行 -->
     <header class="hc-header">
       <h1 class="hc-title">算法笔记</h1>
-      <p class="hc-tagline"></p>
     </header>
 
     <!-- 分类快捷入口 -->
@@ -15,16 +14,14 @@
       </a>
     </nav>
 
-
-    <!-- 文章列表 -->
+    <!-- 文章列表（数据来自 vite 插件 virtual:home-posts，按日期倒序取最近 N 篇） -->
     <section class="hc-posts">
-      <a v-for="(p, i) in posts" :key="i" :href="p.link" class="hc-card" :style="{ '--c': p.color }">
+      <a v-for="p in displayedPosts" :key="p.link" :href="p.link" class="hc-card" :style="{ '--c': p.color }">
         <div class="hc-card-top">
           <span class="hc-card-tag" :style="{ background: p.color + '18', color: p.color }">{{ p.cat }}</span>
-          <time class="hc-card-date">{{ p.date }}</time>
+          <time v-if="p.date" class="hc-card-date">{{ p.date }}</time>
         </div>
         <h2 class="hc-card-title">{{ p.title }}</h2>
-        <p class="hc-card-desc">{{ p.desc }}</p>
       </a>
     </section>
 
@@ -32,103 +29,11 @@
 </template>
 
 <script setup lang="ts">
-const year = new Date().getFullYear()
+import homeData from 'virtual:home-posts'
 
-const categories = [
-  { slug: 'alg', 
-    name: '算法', 
-    link: '/posts/algorithms/', 
-    count: 2, 
-    color: '#8b5cf6', 
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>' 
-  },
-  { slug: 'slove', 
-    name: '题解', 
-    link: '/posts/contest/', 
-    count: 6, 
-    color: '#2563eb', 
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>' 
-  },
-  // { slug: 'contest', 
-  //   name: '竞赛', 
-  //   link: '/posts/contest/', 
-  //   count: 0, color: '#f59e0b', 
-  //   icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5h3A4 4 0 0 1 13 5.5V9"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5h-3A4 4 0 0 0 11 5.5V9"/><path d="M4 22h16"/><path d="M10 22V9"/><path d="M14 22V9"/></svg>' 
-  // },
-  { slug: 'templates', 
-    name: '模板', 
-    link: '/posts/templates/', 
-    count: 7, 
-    color: '#22c55e', 
-    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>' 
-  },
-]
-
-// #f97316  orange-500 橙
-// #f59e0b  amber-500   琥珀黄
-// #eab308  yellow-500 亮黄
-// #84cc16  lime-500    青柠绿
-// #22c55e  green-500   草绿
-// #10b981  emerald-500 翡翠绿
-// #14b8a6  teal-500    水鸭青
-// #06b6d4  cyan-500    浅青蓝
-// #0ea5e9  sky-500     天蓝色
-// #3b82f6  blue-500    原版蓝
-// #6366f1  indigo-500  靛蓝
-// #8b5cf6  violet-500 紫罗兰
-// #a855f7  purple-500  紫色
-// #ec4899  pink-500    粉色
-// #f43f5e  rose-500    玫红
-const posts = [
-  {
-    title: '26牛客暑假多校6',
-    desc: '',
-    link: '/posts/contest/牛客/26牛客暑假多校6',
-    date: '2026-8-5',
-    cat: '题解',
-    color: '#6366f1',
-  },
-  {
-    title: '26牛客暑假多校5',
-    desc: '',
-    link: '/posts/contest/牛客/26牛客暑假多校5',
-    date: '2026-7-31',
-    cat: '题解',
-    color: '#22c55e',
-  },
-  {
-    title: '26牛客暑假多校4',
-    desc: '',
-    link: '/posts/contest/牛客/26牛客暑假多校4',
-    date: '2026-7-29',
-    cat: '题解',
-    color: '#f97316',
-  },
-  {
-    title: '二维叉积',
-    desc: '',
-    link: '/posts/algorithms/二维叉积',
-    date: '2026-7-24',
-    cat: '算法',
-    color: '#a855f7',
-  },
-  {
-    title: '26牛客暑假多校3',
-    desc: '',
-    link: '/posts/contest/牛客/26牛客暑假多校3',
-    date: '2026-7-24',
-    cat: '题解',
-    color: '#ec4899',
-  },
-  { title: '26牛客暑假多校2',
-    desc: '',
-    link: '/posts/contest/牛客/26牛客暑假多校2',
-    date: '2026-7-22',
-    cat: '题解',
-    color: '#3b82f6'
-  }
-  // { title: '', desc: '', link: '', date: '', cat: '', color: '#2563eb' }, 
-]
+const { categories, posts } = homeData
+const LIMIT = 8
+const displayedPosts = posts.slice(0, LIMIT)
 </script>
 
 <style scoped>
@@ -149,11 +54,6 @@ const posts = [
   letter-spacing: -0.03em;
   color: var(--vp-c-text);
   margin: 0 0 6px;
-}
-.hc-tagline {
-  font-size: 0.95rem;
-  color: var(--vp-c-text-mute);
-  margin: 0;
 }
 
 /* --- 分类导航 --- */
@@ -240,37 +140,11 @@ const posts = [
   font-size: 1.05rem;
   font-weight: 700;
   color: var(--vp-c-text);
-  margin: 0 0 8px;
+  margin: 0;
   line-height: 1.4;
 }
 .hc-card:hover .hc-card-title {
   color: var(--c);
-}
-.hc-card-desc {
-  font-size: 0.85rem;
-  color: var(--vp-c-text-mute);
-  margin: 0 0 auto;
-  line-height: 1.55;
-  display: -webkit-box;
-  -webkit-line-clamp: 2;
-  -webkit-box-orient: vertical;
-  overflow: hidden;
-}
-.hc-card-meta {
-  margin-top: 14px;
-}
-.hc-card-read {
-  font-size: 0.75rem;
-  color: var(--vp-c-text-mute);
-  font-weight: 500;
-}
-
-/* --- 页脚 --- */
-.hc-footer {
-  margin-top: 64px;
-  text-align: center;
-  font-size: 0.8rem;
-  color: var(--vp-c-text-mute);
 }
 
 @media (max-width: 600px) {

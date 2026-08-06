@@ -2,6 +2,7 @@ import { defineConfig } from 'vitepress'
 import { createRequire } from 'module'
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 import { searchIndexPlugin } from './plugins/search-index'
+import { homePostsPlugin } from './plugins/home-posts'
 
 const require = createRequire(import.meta.url)
 
@@ -89,7 +90,7 @@ export default defineConfig({
 
   // Vite-SSR config (no front-end runtime dependencies to externalize)
   vite: {
-    plugins: [searchIndexPlugin()],
+    plugins: [searchIndexPlugin(), homePostsPlugin()],
     ssr: {
       noExternal: ['vitepress-plugin-tabs'],
     },
