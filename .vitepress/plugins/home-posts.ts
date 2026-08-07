@@ -33,8 +33,8 @@ interface HomeData {
 const VIRTUAL_MODULE_ID = 'virtual:home-posts'
 const RESOLVED_VIRTUAL_MODULE_ID = '\0' + VIRTUAL_MODULE_ID
 
-/* 分类静态配置（icon 为内联 SVG） */
-const CATEGORIES: Omit<HomeCategory, 'count'>[] = [
+/* 分类静态配置（icon 为内联 SVG），侧边栏复用同一映射 */
+export const CATEGORIES: Omit<HomeCategory, 'count'>[] = [
   {
     slug: 'algorithms',
     name: '算法',

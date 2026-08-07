@@ -1,10 +1,32 @@
 import { defineConfig } from 'vitepress'
 import { createRequire } from 'module'
+import fs from 'fs'
+import path from 'path'
+import { fileURLToPath } from 'url'
 import { tabsMarkdownPlugin } from 'vitepress-plugin-tabs'
 import { searchIndexPlugin } from './plugins/search-index'
 import { homePostsPlugin } from './plugins/home-posts'
+import { buildSidebar } from './plugins/sidebar'
 
 const require = createRequire(import.meta.url)
+
+/**
+ * 从当前文件位置向上查找项目根目录（含 posts/ 文件夹）。
+ * 上限 10 层，找不到直接抛错终止 dev/build，避免生成损坏侧边栏。
+ */
+function findRoot(): string {
+  const start = path.dirname(fileURLToPath(import.meta.url))
+  let dir = start
+  for (let i = 0; i < 10; i++) {
+    if (fs.existsSync(path.join(dir, 'posts'))) return dir
+    const parent = path.dirname(dir)
+    if (parent === dir) break
+    dir = parent
+  }
+  throw new Error(`[sidebar] 向上查找 10 层未找到包含 posts/ 的项目根目录（起始于: ${start}）`)
+}
+
+const root = findRoot()
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -137,68 +159,8 @@ export default defineConfig({
       label: ' ',
     },
 
-    // 左侧导航栏（侧边栏）
-    sidebar: {
-      '/posts/algorithms/': [
-        {
-          text: '算法文章',
-          collapsed: true,
-          items: [
-            // { text: '二分查找', link: '/posts/algorithms/binary' },
-            // { text: '并查集', link: '/posts/algorithms/dsu' },
-          ],
-        },
-      ],
-      '/posts/contest/': [
-        {
-          text: '竞赛题解',
-          collapsed: true,
-          items: [
-            {
-              text: '牛客',
-              collapsed: true,
-              items: [
-                { text: '26牛客暑假多校1', link: '/posts/contest/牛客/26牛客暑假多校1' },
-                { text: '26牛客暑假多校2', link: '/posts/contest/牛客/26牛客暑假多校2' },
-                { text: '26牛客暑假多校3', link: '/posts/contest/牛客/26牛客暑假多校3' },
-                { text: '26牛客暑假多校4', link: '/posts/contest/牛客/26牛客暑假多校4' },
-                { text: '26牛客暑假多校5', link: '/posts/contest/牛客/26牛客暑假多校5' },
-                { text: '26牛客暑假多校6', link: '/posts/contest/牛客/26牛客暑假多校6' }
-              ],
-            },
-          ],
-        },
-      ],
-      '/posts/templates/': [
-        {
-          text: '算法模板',
-          collapsed: true,
-          items: [
-            { text: '头文件', link: '/posts/templates/约束' },
-            { text: '预处理', link: '/posts/templates/预处理' },
-            { text: '质数筛', link: '/posts/templates/质数筛' },
-            {
-              text: '数据结构',
-              collapsed: true,
-              items: [
-                { text: '并查集', link: '/posts/templates/并查集' },
-                { text: '树状数组', link: '/posts/templates/树状数组' },
-                { text: '线段树', link: '/posts/templates/线段树' },
-                { text: 'st表', link: '/posts/templates/st表' },
-              ],
-            },
-            {
-              text: '树上问题',
-              collapsed: true,
-              items: [
-                { text: '树的直径', link: '/posts/templates/树的直径' },
-                { text: '最近公共祖先LCA', link: '/posts/templates/最近公共祖先LCA' },
-              ],
-            },
-          ],
-        },
-      ],
-    },
+    // 左侧导航栏（侧边栏）— 按 posts/ 目录树自动生成，见 plugins/sidebar.ts
+    sidebar: buildSidebar(root),
 
     footer: {
       copyright: '@ 2026 fccc | <a href="https://github.com/f-ccc/alg" target="_blank">GitHub</a>'

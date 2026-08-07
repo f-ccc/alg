@@ -66,7 +66,8 @@ function extractDesc(md: string): string {
 
 export function pathToUrl(absPath: string, root: string): string {
   const relative = path.relative(root, absPath).replace(/\\/g, '/')
-  return '/' + relative.replace(/\.md$/, '')
+  // encodeURI 编码中文/空格等字符，防止 href 出现未编码路径导致 404
+  return '/' + encodeURI(relative.replace(/\.md$/, ''))
 }
 
 /* ------------------------------------------------------------------ */
