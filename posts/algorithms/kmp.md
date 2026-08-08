@@ -92,4 +92,4 @@ int kmp(string s1, string s2) {
 
 ```
 
-**参考视频**：[左程云：算法讲解100【扩展】 KMP算法原理和代码详解](https://www.bilibili.com/video/BV19Q4y1c7ko/)
+**参考视频**：[左程云：算法讲解100【扩展】 KMP算法原理和代码详解](https://www.bilibili.com/video/BV19Q4y1c7ko/)  
