@@ -25,6 +25,9 @@
   /* Custom radius */
   --vp-border-radius: 8px;
 
+  /* 卡片柔光阴影（豆包风格淡灰卡） */
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+
   /* Content width - slightly wider for code */
   --vp-content-max-width: 960px;
 }
@@ -41,6 +44,9 @@
   --vp-c-brand-3: #2563eb;
   --vp-c-border: #2d2d3f;
   --vp-c-divider: #2d2d3f;
+
+  /* 暗色阴影加深，避免发灰 */
+  --card-shadow: 0 2px 8px rgba(0, 0, 0, 0.18);
 }
 
 /* --- Typography Tweaks --- */
@@ -130,54 +136,54 @@
 /* --- Light Mode Color Tokens --- */
 :root {
   --admon-note: #448aff;
-  --admon-note-bg: #eef4ff;
+  --admon-note-bg: color-mix(in srgb, #eef4ff 55%, transparent);
   --admon-info: #00bcd4;
-  --admon-info-bg: #eef9fb;
+  --admon-info-bg: color-mix(in srgb, #eef9fb 55%, transparent);
   --admon-tip: #00bfa5;
-  --admon-tip-bg: #eef8f6;
+  --admon-tip-bg: color-mix(in srgb, #eef8f6 55%, transparent);
   --admon-warning: #fb8c00;
-  --admon-warning-bg: #fef6ed;
+  --admon-warning-bg: color-mix(in srgb, #fef6ed 55%, transparent);
   --admon-danger: #ff1744;
-  --admon-danger-bg: #ffedf0;
+  --admon-danger-bg: color-mix(in srgb, #ffedf0 55%, transparent);
   --admon-success: #4caf50;
-  --admon-success-bg: #eef7ef;
+  --admon-success-bg: color-mix(in srgb, #eef7ef 55%, transparent);
   --admon-failure: #e53935;
-  --admon-failure-bg: #fdeeef;
+  --admon-failure-bg: color-mix(in srgb, #fdeeef 55%, transparent);
   --admon-question: #7c4dff;
-  --admon-question-bg: #f5f0ff;
+  --admon-question-bg: color-mix(in srgb, #f5f0ff 55%, transparent);
   --admon-bug: #e91e63;
-  --admon-bug-bg: #fde8f0;
+  --admon-bug-bg: color-mix(in srgb, #fde8f0 55%, transparent);
   --admon-abstract: #00b0ff;
-  --admon-abstract-bg: #eef7ff;
+  --admon-abstract-bg: color-mix(in srgb, #eef7ff 55%, transparent);
   --admon-example: #ff8f00;
-  --admon-example-bg: #fff6e5;
+  --admon-example-bg: color-mix(in srgb, #fff6e5 55%, transparent);
   --admon-quote: #7e57c2;
-  --admon-quote-bg: #f5f0fa;
+  --admon-quote-bg: color-mix(in srgb, #f5f0fa 55%, transparent);
   --admon-node: #22c55e;
-  --admon-node-bg: #eefaf1;
+  --admon-node-bg: color-mix(in srgb, #eefaf1 55%, transparent);
   --admon-json: #f9a825;
-  --admon-json-bg: #fefae8;
+  --admon-json-bg: color-mix(in srgb, #fefae8 55%, transparent);
   --admon-code: #546e7a;
-  --admon-code-bg: #f0f3f4;
+  --admon-code-bg: color-mix(in srgb, #f0f3f4 55%, transparent);
 }
 
 /* --- Dark Mode Color Tokens --- */
 .dark {
-  --admon-note-bg: #1a2338;
-  --admon-info-bg: #0a2529;
-  --admon-tip-bg: #0a2823;
-  --admon-warning-bg: #2a1f0a;
-  --admon-danger-bg: #2e0e15;
-  --admon-success-bg: #0d2612;
-  --admon-failure-bg: #2a1011;
-  --admon-question-bg: #1c1330;
-  --admon-bug-bg: #2a0c1a;
-  --admon-abstract-bg: #0a2230;
-  --admon-example-bg: #2a1f0a;
-  --admon-quote-bg: #1e1530;
-  --admon-node-bg: #0a2613;
-  --admon-json-bg: #2a220a;
-  --admon-code-bg: #152025;
+  --admon-note-bg: color-mix(in srgb, #1a2338 55%, transparent);
+  --admon-info-bg: color-mix(in srgb, #0a2529 55%, transparent);
+  --admon-tip-bg: color-mix(in srgb, #0a2823 55%, transparent);
+  --admon-warning-bg: color-mix(in srgb, #2a1f0a 55%, transparent);
+  --admon-danger-bg: color-mix(in srgb, #2e0e15 55%, transparent);
+  --admon-success-bg: color-mix(in srgb, #0d2612 55%, transparent);
+  --admon-failure-bg: color-mix(in srgb, #2a1011 55%, transparent);
+  --admon-question-bg: color-mix(in srgb, #1c1330 55%, transparent);
+  --admon-bug-bg: color-mix(in srgb, #2a0c1a 55%, transparent);
+  --admon-abstract-bg: color-mix(in srgb, #0a2230 55%, transparent);
+  --admon-example-bg: color-mix(in srgb, #2a1f0a 55%, transparent);
+  --admon-quote-bg: color-mix(in srgb, #1e1530 55%, transparent);
+  --admon-node-bg: color-mix(in srgb, #0a2613 55%, transparent);
+  --admon-json-bg: color-mix(in srgb, #2a220a 55%, transparent);
+  --admon-code-bg: color-mix(in srgb, #152025 55%, transparent);
 }
 
 /* --- SVG Icon Data URIs (currentColor 自动继承主题色) --- */
@@ -218,23 +224,20 @@
 
 /* 基础容器 */
 .vp-doc .admonition {
-  border-radius: var(--vp-border-radius);
-  margin: 1.5em 0;
-  padding: 0.75rem 1rem 0.75rem 0.75rem;
-  border-left: 4px solid;
+  border-radius: 10px;
+  margin: 1.25em 0;
+  padding: 0.6rem 0.85rem;
+  border: 1px solid var(--vp-c-divider);
   font-size: 0.95rem;
   position: relative;
-  transition: box-shadow 0.2s;
-}
-.vp-doc .admonition:hover {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.2s, box-shadow 0.2s ease, border-color 0.2s;
 }
 
 /* 标题行 — 带图标 */
 .vp-doc .admonition-title {
-  font-weight: 700;
-  font-size: 0.975rem;
-  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.925rem;
+  margin-bottom: 0.35rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
@@ -242,8 +245,8 @@
 .vp-doc .admonition-title::before {
   content: '';
   display: inline-block;
-  width: 1.15em;
-  height: 1.15em;
+  width: 1em;
+  height: 1em;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -349,31 +352,29 @@
 
 /* 基础容器 */
 .vp-doc .custom-details {
-  border-radius: var(--vp-border-radius);
-  margin: 1.5em 0;
+  border-radius: 10px;
+  margin: 1.25em 0;
   padding: 0;
-  border-left: 4px solid;
+  border: 1px solid var(--vp-c-divider);
   background: var(--vp-c-bg-alt);
-  transition: box-shadow 0.2s;
-}
-.vp-doc .custom-details:hover {
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.06);
+  transition: background-color 0.2s, box-shadow 0.2s ease, border-color 0.2s;
 }
 .vp-doc .custom-details[open] {
-  padding-bottom: 0.75rem;
+  padding-bottom: 0.5rem;
 }
 
 /* summary — 可点击标题行 */
 .vp-doc .custom-details summary {
-  font-weight: 700;
-  font-size: 0.975rem;
+  font-weight: 600;
+  font-size: 0.925rem;
   cursor: pointer;
   user-select: none;
-  padding: 0.75rem 1rem 0.75rem 0.75rem;
+  padding: 0.55rem 0.85rem;
   display: flex;
   align-items: center;
   gap: 0.4rem;
   list-style: none;
+  border-radius: calc(var(--vp-border-radius) - 1px);
 }
 /* 移除默认的三角 marker */
 .vp-doc .custom-details summary::-webkit-details-marker {
@@ -388,8 +389,8 @@
 .vp-doc .custom-details summary::before {
   content: '';
   display: inline-block;
-  width: 1.15em;
-  height: 1.15em;
+  width: 1em;
+  height: 1em;
   background-size: contain;
   background-repeat: no-repeat;
   background-position: center;
@@ -403,11 +404,11 @@
   width: 0.7em;
   height: 0.7em;
   margin-left: auto;
-  border-right: 2px solid currentColor;
-  border-bottom: 2px solid currentColor;
+  border-right: 1.5px solid currentColor;
+  border-bottom: 1.5px solid currentColor;
   transform: rotate(-45deg);
   transition: transform 0.2s;
-  opacity: 0.6;
+  opacity: 0.45;
   flex-shrink: 0;
 }
 .vp-doc .custom-details[open] > summary::after {
@@ -416,13 +417,14 @@
 
 /* summary hover */
 .vp-doc .custom-details summary:hover {
-  opacity: 0.85;
+  background: color-mix(in srgb, var(--vp-c-text) 4%, transparent);
+  opacity: 0.9;
 }
 
 /* details 内文字区 */
 .vp-doc .custom-details > :not(summary) {
-  margin-left: 1rem;
-  margin-right: 1rem;
+  margin-left: 0.85rem;
+  margin-right: 0.85rem;
 }
 .vp-doc .custom-details > :first-child {
   margin-top: 0;
@@ -431,7 +433,7 @@
   margin-bottom: 0;
 }
 .vp-doc .custom-details p {
-  margin: 0.6em 0;
+  margin: 0.5em 0;
 }
 .vp-doc .custom-details ul,
 .vp-doc .custom-details ol {
@@ -442,7 +444,7 @@
   margin: 0.2em 0;
 }
 .vp-doc .custom-details div[class*='language-'] {
-  margin: 0.6em 0;
+  margin: 0.5em 0;
 }
 .vp-doc .custom-details table {
   font-size: 0.9em;
@@ -513,6 +515,41 @@
 .vp-doc .custom-details.details-code { border-left-color: var(--admon-code); background: var(--admon-code-bg); }
 .vp-doc .custom-details.details-code summary { color: var(--admon-code); }
 .vp-doc .custom-details.details-code summary::before { background-image: var(--icon-code); }
+
+/* ===================== 豆包风格：淡灰卡片（统一所有类型） ===================== */
+/* 中和 per-type 的左色条与彩色底；[open] 与 hover 同组，防插件追加背景/后续规则冲掉。
+   [class*='details-'] 覆盖全部 15 个 details 类型，[class*='admonition'] 覆盖全部 admonition 类型
+   （含纯 .admonition）；等特异性 (0,3,0) 且位于 per-type 之后，无需 !important */
+.vp-doc .custom-details[class*='details-'],
+.vp-doc .custom-details[class*='details-'][open],
+.vp-doc .admonition[class*='admonition'] {
+  border-left: 1px solid var(--vp-c-divider);
+  background: var(--vp-c-bg-alt);
+  border-radius: 10px;
+  overflow: visible; /* 焦点环不被圆角裁剪 */
+}
+.vp-doc .custom-details[class*='details-']:hover,
+.vp-doc .admonition[class*='admonition']:hover {
+  box-shadow: var(--card-shadow);
+}
+
+/* 键盘可达性：聚焦可见环 */
+.vp-doc .custom-details summary:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: -2px;
+  border-radius: calc(var(--vp-border-radius) - 1px);
+}
+
+/* 展开动效（尊重系统减弱动效设置） */
+@media (prefers-reduced-motion: no-preference) {
+  .vp-doc .custom-details[open] > :not(summary) {
+    animation: details-open 0.16s ease-out;
+  }
+}
+@keyframes details-open {
+  from { opacity: 0; transform: translateY(-2px); }
+  to { opacity: 1; transform: translateY(0); }
+}
 
 /* ============================================
    ==高亮== (mark)
@@ -1027,6 +1064,26 @@
 .VPDocAsideOutline ul ul .outline-link {
   padding-left: 24px;
   font-size: 0.8rem;
+}
+
+/* ===================== :::tabs 标签页 (vitepress-plugin-tabs) ===================== */
+
+/* 与站点色板对齐（默认 variant） */
+:root {
+  --vp-plugin-tabs-tab-bg: var(--vp-c-bg-alt);
+}
+
+/* 紧凑 tab 行（默认 variant 48px → 40px；variant:code 不覆盖） */
+.vp-doc .plugin-tabs:not([data-variant='code']) .plugin-tabs--tab {
+  line-height: 40px;
+  padding: 0 10px;
+  font-size: 13px;
+}
+
+/* 键盘可达性：聚焦可见环 */
+.vp-doc .plugin-tabs--tab:focus-visible {
+  outline: 2px solid var(--vp-c-brand-1);
+  outline-offset: -2px;
 }
 
 

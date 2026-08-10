@@ -7,3 +7,4 @@
 
 ## 字符串
 1. [kmp](kmp.md)
+2. [Manacher算法](Manacher算法.md)
