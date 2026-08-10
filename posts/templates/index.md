@@ -21,3 +21,4 @@
 
 ## 字符串
 - [kmp](kmp.md)
+- [Manacher](Manacher.md)
