@@ -146,6 +146,7 @@ export default defineConfig({
       { text: '算法', link: '/posts/algorithms/'},
       { text: '题解', link: '/posts/contest/' },
       { text: '模板', link: '/posts/templates/' },
+      { text: '题单', link: '/posts/problem'}
       // { text: '标签', link: '/tags/' },
     ],
 

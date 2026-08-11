@@ -1,23 +1,14 @@
 - Manacher
   
 ```c++
-#include <bits/stdc++.h>
-using namespace std;
-
-std::string toManachers(const std::string& s){
-    std::string res;
-    res.reserve(2 * s.size() + 3);
-    res += "@#";
-    for(char c : s){
-        res += c;
-        res += '#';
-    }
+std::string expend(const std::string& s) {
+    std::string res = "@#";
+    for (int i = 0; i < s.size(); i++) res += s[i], res += '#';
     res += '%';
     return res;
 }
-
 int get_Manacher_mx(std::string& s){
-    std::string t=toManachers(s);
+    std::string t=expend(s);
     std::vector<int>p(t.size());//回文半径数组
     int mx=0;
     for(int i=1,r=0,c=0; i < (int)t.size() - 1; i++){
@@ -37,7 +28,7 @@ int get_Manacher_mx(std::string& s){
 获取真实最长回文串
 ```c++
 std::string Manacher(const std::string& s){
-    std::string t=toManachers(s);
+    std::string t=expend(s);
     std::vector<int>p(t.size());
     int mx=0,pos=0;
     for(int i=1,r=0,c=0;i<t.size()-1;i++){
