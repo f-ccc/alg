@@ -56,6 +56,13 @@ export const CATEGORIES: Omit<HomeCategory, 'count'>[] = [
     color: '#22c55e',
     icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="16 18 22 12 16 6"/><polyline points="8 6 2 12 8 18"/></svg>',
   },
+  {
+    slug: 'problem',
+    name: '题单',
+    link: '/posts/problem/',
+    color: '#ef4444',
+    icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M8 6h13M8 12h13M8 18h13"/><path d="M3 6h.01M3 12h.01M3 18h.01"/></svg>',
+  },
 ]
 
 /* 每篇文章卡片色板（按标题哈希取色，保持每篇不同色） */
@@ -83,11 +90,15 @@ function normalizeDate(raw: string): string {
   return `${y}-${mo.padStart(2, '0')}-${d.padStart(2, '0')}`
 }
 
-/** posts/ 下第一级目录 slug → 分类名 */
-function catFor(absPath: string, root: string): string {
+/** posts/ 下第一级目录 slug（如 algorithms / contest / templates / problem） */
+function slugFor(absPath: string, root: string): string {
   const rel = path.relative(path.join(root, 'posts'), absPath).replace(/\\/g, '/')
-  const slug = rel.split('/')[0] ?? ''
-  const c = CATEGORIES.find((c) => c.slug === slug)
+  return rel.split('/')[0] ?? ''
+}
+
+/** 一级目录 slug → 分类名（未知目录归「其他」） */
+function catFor(absPath: string, root: string): string {
+  const c = CATEGORIES.find((c) => c.slug === slugFor(absPath, root))
   return c ? c.name : '其他'
 }
 
@@ -97,7 +108,7 @@ function generateHomeData(root: string): HomeData {
     return { categories: CATEGORIES.map((c) => ({ ...c, count: 0 })), posts: [] }
   }
 
-  const posts: HomePost[] = []
+  const posts: HomePost[] = [] // 首页文章流（不含题单）
 
   for (const absPath of findMdFiles(postsDir)) {
     let src: string
@@ -109,6 +120,9 @@ function generateHomeData(root: string): HomeData {
 
     const title = extractTitle(src)
     if (!title) continue
+
+    // 题单不进首页文章流（分类数量由下方 findMdFiles 统一统计，与标题格式无关）
+    if (slugFor(absPath, root) === 'problem') continue
 
     const fm = parseFrontmatter(src)
     posts.push({
@@ -128,10 +142,11 @@ function generateHomeData(root: string): HomeData {
     return a.title.localeCompare(b.title, 'zh')
   })
 
-  const categories = CATEGORIES.map((c) => ({
-    ...c,
-    count: posts.filter((p) => p.cat === c.name).length,
-  }))
+  // 分类数量 = 各主目录递归 md 文件数 - 1（findMdFiles 已排除 index.md），不依赖标题格式
+  const categories = CATEGORIES.map((c) => {
+    const catDir = path.join(postsDir, c.slug)
+    return { ...c, count: fs.existsSync(catDir) ? findMdFiles(catDir).length : 0 }
+  })
 
   return { categories, posts }
 }

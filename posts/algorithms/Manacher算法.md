@@ -129,4 +129,5 @@ int get_Manacher_mx(std::string& s){
 ???
 
 
-- **参考视频：** [左程云：算法讲解103【扩展】 Manacher算法、扩展KMP](https://www.bilibili.com/video/BV1YH4y1h7MU/?spm_id_from=333.1387.search.video_card.click&vd_source=a3a9c3c06f3daf62f0e32f1691d048c6)
+- **参考视频：** [左程云：算法讲解103【扩展】 Manacher算法、扩展KMP](https://www.bilibili.com/video/BV1YH4y1h7MU/?spm_id_from=333.1387.search.video_card.click&vd_source=a3a9c3c06f3daf62f0e32f1691d048c6)  
+- [Manacher题单](/posts\problem\Manacher题单.md)
