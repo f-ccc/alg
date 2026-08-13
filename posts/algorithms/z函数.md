@@ -126,6 +126,8 @@ std::vector<int> zArray(const std::string& s) {
 
 需要求出字符串`b`的z函数，然后求e数组与z函数差不多
 
+**注意：** e数组是要从下标为0开始求
+
 ### e函数模板
 
 ??? node e数组模板
@@ -146,3 +148,7 @@ std::vector<int> eArray(const std::string& a, const std::string& b, const std::v
 }
 ```
 ???
+
+- **参考视频：** [左程云：算法讲解103【扩展】 Manacher算法、扩展KMP](https://www.bilibili.com/video/BV1YH4y1h7MU/?spm_id_from=333.1387.search.video_card.click&vd_source=a3a9c3c06f3daf62f0e32f1691d048c6)  
+
+- [z函数题单](/posts/problem/z函数题单.md)
