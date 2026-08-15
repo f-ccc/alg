@@ -22,6 +22,9 @@
 ## 字符串
 - [kmp](kmp.md)
 - [Manacher](Manacher.md)
+- [字典树(trie)](trie.md)
+- [ac自动机](ac自动机.md)
+- [回文自动机 PAM（回文树）](回文自动机.md)
   
 
 ## 图论
