@@ -497,8 +497,6 @@ int main() {
 
 ???
 
-请问是否需要对本题中“合法性无解判定分支（多重集非法时输出 0 的完备校验）”进行扩展探讨，还是需要一组基于格路计数/前缀状态机建模的进阶配套练习题？
-
 
 ## Problem L. 最长公共前缀
 
@@ -511,12 +509,15 @@ int main() {
 $$f_{i, j} = \max_{T \subseteq \{1, 2, \dots, i\}, \vert{}T\vert{} = j} \vert{}\text{LCP}(s_k \mid k \in T)\vert{}$$
 
 
-规定单个字符串的最长公共前缀长度即为其自身长度。
+规定单个字符串的最长公共前缀长度为其自身长度。
 
-对于每个前缀阶段 $i = 1, 2, \dots, n$，计算并输出所有 $j \in [1, i]$ 对应的 $(f_{i, j} \oplus j)$ 的按位异或和：
+对于每个阶段 $i = 1, 2, \dots, n$，计算并输出所有 $j \in [1, i]$ 对应的 $(f_{i, j} \oplus j)$ 的按位异或和：
 
 
 $$\bigoplus_{j=1}^i (f_{i, j} \oplus j)$$
+
+
+其中 $\oplus$ 与 $\bigoplus$ 均表示按位异或（XOR）运算。
 
 **数据范围：**
 
@@ -529,51 +530,41 @@ $$\bigoplus_{j=1}^i (f_{i, j} \oplus j)$$
 
 ### 思路
 
-#### 1. 字典树（Trie）与公共前缀映射
+#### 1. Trie 树节点与 LCP 候选映射
 
-多个字符串的公共前缀在字典树上具有直接的几何对应关系：
+多个字符串的公共前缀在字典树（Trie）上体现为公共祖先节点：
 
-* 若集合 $T$ 中的所有字符串具有长度为 $L$ 的公共前缀，则在字典树上必然存在一个深度为 $L$ 的节点 $u$（满足根节点深度为 $0$），使得集合 $T$ 中的每一个字符串在插入时都经过了该节点 $u$。
-* 设节点 $u$ 的树深度为 $\textit{dep}[u]$，在前 $i$ 个串中经过节点 $u$ 的字符串总数为 $\textit{cnt}[u]$。则以节点 $u$ 为前缀的字符串数量达到了 $\textit{cnt}[u]$ 个，它能够为所有选出子集大小 $j \le \textit{cnt}[u]$ 提供长度为 $\textit{dep}[u]$ 的公共前缀候选值。
-* 因此，在任意时刻，选出 $j$ 个字符串的最大 LCP 长度可表示为：
+* 若在前 $i$ 个字符串中选出 $j$ 个字符串，使得它们具有长度为 $L$ 的公共前缀，等价于在 Trie 树上存在一个深度为 $L$ 的节点 $u$（根节点深度设为 $0$），在前 $i$ 个字符串的插入路径中，经过该节点 $u$ 的次数 $\textit{cnt}[u] \ge j$。
+* 因此，对于固定的子集大小 $j$，其最大 LCP 长度可直接由 Trie 树上的节点性质刻画：
 
-$$f_j = \max \{ \textit{dep}[u] \mid \textit{cnt}[u] \ge j \}$$
-
-
-
-#### 2. 增量维护与状态继承
-
-随着字符串按 $i = 1, 2, \dots, n$ 的顺序逐个插入，整个系统的状态具有单调性与增量特性：
-
-1. **新增集合容量**：当处理第 $i$ 个字符串时，$j$ 的取值范围由 $[1, i-1]$ 扩展到 $[1, i]$。在考虑新字符串之前，$f_i$ 的基础初值为 $0$（对应空前缀），将 $(f_i \oplus i) = (0 \oplus i) = i$ 率先异或计入当前总答案。
-2. **节点计数的动态跃迁**：遍历当前字符串 $s_i$ 的每个字符，沿 Trie 树向下移动。对于沿途访问的每个节点 $u$：
-* 将经过该节点的计数加 $1$：$\textit{cnt}[u] \leftarrow \textit{cnt}[u] + 1$；
-* 此时，经过节点 $u$ 的字符串个数恰好达到了新的高度 $c = \textit{cnt}[u]$。
-* **核心性质**：由于节点 $u$ 的深度 $\textit{dep}[u]$ 是恒定不变的，在其计数此前达到 $1, 2, \dots, c-1$ 的历史时刻，已经分别对 $f_1, f_2, \dots, f_{c-1}$ 进行过候选更新。因此，当 $\textit{cnt}[u]$ 递增到 $c$ 时，**只需且仅需尝试更新 $f_c$**。
-* 若 $\textit{dep}[u] > f_c$，说明我们找到了一个包含 $c$ 个串且更长的公共前缀，执行状态松弛：$f_c \leftarrow \textit{dep}[u]$。
+$$f_{i, j} = \max \{ \textit{dep}[u] \mid \textit{cnt}[u] \ge j \}$$
 
 
 
-#### 3. 异或和的 $O(1)$ 动态更新
+#### 2. 在线增量松弛性质
 
-题目要求维护全局异或和 $\textit{ans} = \bigoplus_{j=1}^i (f_j \oplus j)$。利用异或运算的自反性（$x \oplus y \oplus y = x$）：
+当按顺序插入第 $i$ 个字符串 $s_i$ 时：
 
-* 当某个 $f_c$ 即将从旧值 $\textit{old}$ 被更新为新值 $\textit{new} = \textit{dep}[u]$ 时，原有的贡献项为 $(\textit{old} \oplus c)$，新的贡献项为 $(\textit{new} \oplus c)$；
-* 仅需执行两步异或操作即可在 $\mathcal{O}(1)$ 内完成总贡献维护：
+1. **状态维数扩展**：可选子集大小上限由 $i-1$ 扩充到 $i$。在遍历当前字符串前，大小为 $i$ 的子集尚未形成任何公共前缀，即 $f_{i, i} = 0$。其初始贡献项为 $(0 \oplus i) = i$，可先行计入异或和。
+2. **局部更新与单调性**：沿 Trie 树向下插入字符串 $s_i$ 的每个字符。当访问到某个节点 $u$ 时，经过该节点的字符串计数增加：$\textit{cnt}[u] \leftarrow \textit{cnt}[u] + 1$。
+设此时节点 $u$ 的新计数为 $c = \textit{cnt}[u]$。由于节点 $u$ 的深度 $\textit{dep}[u]$ 是静态固定的，在历史过程中节点 $u$ 的计数达到 $1, 2, \dots, c-1$ 时，其深度已经对 $f_1, f_2, \dots, f_{c-1}$ 进行过候选更新。因此，**当前计数达到 $c$ 时，仅需且只需尝试更新 $f_c$**。
+3. **极值更新**：若 $\textit{dep}[u] > f_c$，说明以当前深度作为公共前缀能取得更优值，触发松弛：$f_c \leftarrow \textit{dep}[u]$。
+
+#### 3. 动态维护与算子校准
+
+* **按位异或维护**：根据题目规范，目标值为异或和 $\bigoplus_{j=1}^i (f_{i, j} \oplus j)$。利用异或运算的自反性（$x \oplus x = 0$），当 $f_c$ 从旧值 $\textit{old}$ 更新为新值 $\textit{new} = \textit{dep}[u]$ 时，仅需执行以下操作即可在 $\mathcal{O}(1)$ 完成增量维护：
 
 $$\textit{ans} \leftarrow \textit{ans} \oplus (\textit{old} \oplus c) \oplus (\textit{new} \oplus c)$$
 
 
-* 单个字符插入过程中至多触发一次该更新操作，无需重构任何全局数组。
-
-*(注：原代码草稿中使用加减算子 `+=` / `-=` 维护累加和，依据题面规范的按位异或要求，应统一采用自反异或操作 `^=` 维护。)*
+* **算子对比说明**：若题目要求的是常规算术累加和 $\sum_{j=1}^i (f_{i, j} \oplus j)$，则采用加减更新算子 $\textit{ans} \leftarrow \textit{ans} - (\textit{old} \oplus c) + (\textit{new} \oplus c)$；针对本题题面明确规定的大异或和 $\bigoplus$，应严格采用自反异或操作 `^=` 进行状态流转。
 
 ---
 
 ### 复杂度分析
 
-* **时间复杂度**：$\mathcal{O}\left(\sum_{i=1}^n \vert{}s_i\vert{} \cdot \vert{}\Sigma\vert{}\right)$，其中 $\vert{}\Sigma\vert{} = 26$。每个字符在 Trie 树上转移与分配节点的开销为 $\mathcal{O}(1)$，沿途更新 $\textit{cnt}$、比较 $f_c$ 并维护全局异或和的操作均为 $\mathcal{O}(1)$。总运行时间严格正比于输入字符总数，在 $5 \cdot 10^5$ 规模下耗时约数十毫秒，远低于 $1.0\text{ s}$ 限制。
-* **空间复杂度**：$\mathcal{O}\left(\vert{}\Sigma\vert{} \cdot \sum_{i=1}^n \vert{}s_i\vert{}\right)$。Trie 树的节点总数不超过 $\sum \vert{}s_i\vert{} + 1$。各状态数组大小为 $\mathcal{O}(N)$，空间开销约数十兆字节，远小于 $1024\text{ MB}$ 的限制。
+* **时间复杂度**：$\mathcal{O}\left(\sum_{i=1}^n \vert{}s_i\vert{} \cdot \vert{}\Sigma\vert{}\right)$，其中字符集大小 $\vert{}\Sigma\vert{} = 26$。每个字符在 Trie 树上匹配与开辟节点为 $\mathcal{O}(1)$ 常数时间，沿途计数累加、状态松弛与异或更新均为 $\mathcal{O}(1)$。整体时间严格正比于输入字符总长度，在 $5 \cdot 10^5$ 规模下耗时约数十毫秒，远低于 $1.0\text{ s}$ 限时。
+* **空间复杂度**：$\mathcal{O}\left(\vert{}\Sigma\vert{} \cdot \sum_{i=1}^n \vert{}s_i\vert{}\right)$。Trie 树的节点总数不超过 $\sum \vert{}s_i\vert{} + 1$。转移数组与属性数组占用内存约数十兆字节，远低于 $1024\text{ MB}$ 空间限制。
 
 ---
 
@@ -582,70 +573,63 @@ $$\textit{ans} \leftarrow \textit{ans} \oplus (\textit{old} \oplus c) \oplus (\t
 ??? node 参考代码
 
 ```cpp
-#include <bits/stdc++.h>
-using namespace std;
-using ll = long long;
+#include <iostream>
+#include <string>
 
-const int N = 5e5 + 5;
+using namespace std;
+
+const int N = 500005;
 const int SIGMA = 26;
 
-// tree 存储字典树转移边，cnt 记录经过各节点的字符串数，ch 记录节点深度
-int tree[N][SIGMA], cnt[N], ch[N], idx;
-// f[j] 表示当前选出 j 个串的最大 LCP 长度，ans 维护当前前缀的异或和
-int f[N];
-ll ans = 0;
+// tree 存储字典树边转移，cnt 记录经过该节点的字符串数量
+// ch 记录节点的深度（即公共前缀长度），f[j] 记录选 j 个串时的最大 LCP
+int tree[N][SIGMA], cnt[N], ch[N], f[N];
+int idx;
+long long ans; // 维护当前前缀的动态异或和
 
-void insert(const std::string& s) {
+void insert(const string& s) {
     int u = 0;
     for (char c : s) {
-        int bit = c - 'a';
-        if (!tree[u][bit]) {
-            tree[u][bit] = ++idx;
-            ch[idx] = ch[u] + 1; // 节点深度即为公共前缀长度
+        int x = c - 'a';
+        if (!tree[u][x]) {
+            tree[u][x] = ++idx;
+            ch[idx] = ch[u] + 1; // 维护节点在 Trie 树上的深度
         }
-        u = tree[u][bit];
+        u = tree[u][x];
         cnt[u]++;
 
-        // 仅在 cnt[u] 达到新数值且深度更优时更新 f[cnt[u]]
+        // 仅当当前节点深度大于已记录的 f[cnt[u]] 时进行状态松弛
         if (ch[u] > f[cnt[u]]) {
-            // 利用异或自反性：先消除旧贡献，再并入新贡献
-            ans ^= (f[cnt[u]] ^ cnt[u]);
+            // 利用异或的自反性质：先抵消旧状态贡献，再并入新状态贡献
+            ans ^= (1LL * f[cnt[u]] ^ cnt[u]);
             f[cnt[u]] = ch[u];
-            ans ^= (f[cnt[u]] ^ cnt[u]);
+            ans ^= (1LL * f[cnt[u]] ^ cnt[u]);
         }
-    }
-}
-
-void fc() {
-    int n;
-    std::cin >> n;
-    std::string s;
-
-    for (int i = 1; i <= n; i++) {
-        std::cin >> s;
-        // 扩展第 i 个位置的初值状态：初始 f[i] = 0，贡献为 (0 ^ i) = i
-        ans ^= (f[i] ^ i);
-
-        // 将当前字符串插入字典树并动态松弛相关状态
-        insert(s);
-
-        // 输出当前前缀 i 的最终异或和
-        std::cout << ans << "\n";
     }
 }
 
 int main() {
-    // 提高标准 I/O 执行效率
+    // 提高标准 I/O 效率
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    int t = 1;
-    // std::cin >> t;
-    while (t--) fc();
+    int n;
+    if (!(cin >> n)) return 0;
+
+    string s;
+    for (int i = 1; i <= n; i++) {
+        cin >> s;
+        // 扩展第 i 项的初始状态：f[i] 初始为 0，贡献项为 (0 ^ i) = i
+        ans ^= i;
+        
+        insert(s);
+        
+        cout << ans << "\n";
+    }
+
     return 0;
 }
 
 ```
 
 ???
-
