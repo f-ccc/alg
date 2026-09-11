@@ -4,7 +4,7 @@ date: 2026-09-6
 
 # 2026 ICPC Asia EC 网络赛
 
-点击查看[题面](/pdf/2026IcpcAsiaEC网络预选赛.pdf){target="_blank" rel="noopener noreferrer"}              
+点击查看[题面](/pdf/2026IcpcAsiaEC网络预选赛.pdf){target="_blank" rel="noopener noreferrer"}          
 点击查看[题解(en)](/pdf/2026IcpcAsiaEC网络预选赛题解-en.pdf){target="_blank" rel="noopener noreferrer"}  
 
 ## Problem M. 签到
@@ -497,74 +497,74 @@ int main() {
 
 ???
 
-
 ## Problem L. 最长公共前缀
 
 ### 题目大意
 
 给定 $n$ 个由小写英文字母组成的非空字符串 $s_1, s_2, \dots, s_n$。
-对每对整数 $(i, j)$（$1 \le j \le i \le n$），定义 $f_{i, j}$ 为在前 $i$ 个字符串中任选 $j$ 个字符串时，它们的最长公共前缀（LCP）的最大可能长度：
+对每对整数 $(i, j)$（$1 \le j \le i \le n$），定义 $f_{i, j}$ 为在前 $i$ 个字符串中恰好选出 $j$ 个字符串时，它们的最长公共前缀（LCP）的最大可能长度。形式化地：
 
 
 $$f_{i, j} = \max_{T \subseteq \{1, 2, \dots, i\}, \vert{}T\vert{} = j} \vert{}\text{LCP}(s_k \mid k \in T)\vert{}$$
 
 
-规定单个字符串的最长公共前缀长度为其自身长度。
+规定单个字符串的最长公共前缀长度即为其自身长度。
 
-对于每个阶段 $i = 1, 2, \dots, n$，计算并输出所有 $j \in [1, i]$ 对应的 $(f_{i, j} \oplus j)$ 的按位异或和：
-
-
-$$\bigoplus_{j=1}^i (f_{i, j} \oplus j)$$
+对于每个阶段 $i = 1, 2, \dots, n$，计算并输出：
 
 
-其中 $\oplus$ 与 $\bigoplus$ 均表示按位异或（XOR）运算。
+$$\sum_{j=1}^i (f_{i, j} \oplus j)$$
+
+
+其中 $\oplus$ 表示按位异或（XOR）运算。
 
 **数据范围：**
 
 * $1 \le n \le 5 \cdot 10^5$
 * $\sum_{i=1}^n \vert{}s_i\vert{} \le 5 \cdot 10^5$
-* 所有字符串仅由小写英文字母组成
+* 每个字符串均由小写英文字母组成
 * 时间限制：$1.0\text{ s}$，空间限制：$1024\text{ MB}$
 
 ---
 
 ### 思路
 
-#### 1. Trie 树节点与 LCP 候选映射
+#### 1. 字典树（Trie）与公共前缀映射
 
-多个字符串的公共前缀在字典树（Trie）上体现为公共祖先节点：
+多个字符串的公共前缀对应字典树上的公共祖先节点：
 
-* 若在前 $i$ 个字符串中选出 $j$ 个字符串，使得它们具有长度为 $L$ 的公共前缀，等价于在 Trie 树上存在一个深度为 $L$ 的节点 $u$（根节点深度设为 $0$），在前 $i$ 个字符串的插入路径中，经过该节点 $u$ 的次数 $\textit{cnt}[u] \ge j$。
-* 因此，对于固定的子集大小 $j$，其最大 LCP 长度可直接由 Trie 树上的节点性质刻画：
+* 若在前 $i$ 个字符串中存在大小为 $j$ 的子集，且它们拥有长度为 $L$ 的公共前缀，等价于 Trie 树上存在一个深度为 $L$ 的节点 $u$（设根节点深度为 $0$），在前 $i$ 个字符串的插入路径中经过节点 $u$ 的次数满足 $\textit{cnt}[u] \ge j$。
+* 因而，选出 $j$ 个字符串的最大 LCP 长度即为所有满足“经过频次不小于 $j$”的节点深度的最大值：
 
 $$f_{i, j} = \max \{ \textit{dep}[u] \mid \textit{cnt}[u] \ge j \}$$
 
 
 
-#### 2. 在线增量松弛性质
+#### 2. 在线增量更新性质
 
-当按顺序插入第 $i$ 个字符串 $s_i$ 时：
+按顺序将字符串 $s_1, s_2, \dots, s_n$ 逐个插入字典树：
 
-1. **状态维数扩展**：可选子集大小上限由 $i-1$ 扩充到 $i$。在遍历当前字符串前，大小为 $i$ 的子集尚未形成任何公共前缀，即 $f_{i, i} = 0$。其初始贡献项为 $(0 \oplus i) = i$，可先行计入异或和。
-2. **局部更新与单调性**：沿 Trie 树向下插入字符串 $s_i$ 的每个字符。当访问到某个节点 $u$ 时，经过该节点的字符串计数增加：$\textit{cnt}[u] \leftarrow \textit{cnt}[u] + 1$。
-设此时节点 $u$ 的新计数为 $c = \textit{cnt}[u]$。由于节点 $u$ 的深度 $\textit{dep}[u]$ 是静态固定的，在历史过程中节点 $u$ 的计数达到 $1, 2, \dots, c-1$ 时，其深度已经对 $f_1, f_2, \dots, f_{c-1}$ 进行过候选更新。因此，**当前计数达到 $c$ 时，仅需且只需尝试更新 $f_c$**。
-3. **极值更新**：若 $\textit{dep}[u] > f_c$，说明以当前深度作为公共前缀能取得更优值，触发松弛：$f_c \leftarrow \textit{dep}[u]$。
+* **状态维度扩充**：当插入第 $i$ 个字符串时，子集大小 $j$ 的取值上限由 $i - 1$ 扩展至 $i$。在遍历当前串前，大小为 $i$ 的子集尚未形成任何公共前缀，即 $f_{i, i} = 0$。其初始贡献项为 $(f_{i, i} \oplus i) = (0 \oplus i) = i$，可先行计入总和：$\textit{ans} \leftarrow \textit{ans} + i$。
+* **单调性与单点更新**：遍历字符串 $s_i$ 的每个字符，沿 Trie 树向下转移。对于途径的节点 $u$，其经过次数递增：$\textit{cnt}[u] \leftarrow \textit{cnt}[u] + 1$。
+设此时节点 $u$ 的最新计数为 $c = \textit{cnt}[u]$。由于节点 $u$ 的深度 $\textit{dep}[u]$ 是静态不变的，在历史阶段该节点的计数达到 $1, 2, \dots, c-1$ 时，其深度已对 $f_1, f_2, \dots, f_{c-1}$ 进行过松弛候选；而对于任意 $j > c$，当前节点的经过次数尚未满足条件。因此，**节点计数增加到 $c$ 时，至多且仅会对 $f_c$ 产生松弛贡献**。
+* **极值松弛**：若 $\textit{dep}[u] > f_c$，说明存在包含 $c$ 个串且更长的公共前缀，更新 $f_c \leftarrow \textit{dep}[u]$。
 
-#### 3. 动态维护与算子校准
+#### 3. 代数和的动态维护
 
-* **按位异或维护**：根据题目规范，目标值为异或和 $\bigoplus_{j=1}^i (f_{i, j} \oplus j)$。利用异或运算的自反性（$x \oplus x = 0$），当 $f_c$ 从旧值 $\textit{old}$ 更新为新值 $\textit{new} = \textit{dep}[u]$ 时，仅需执行以下操作即可在 $\mathcal{O}(1)$ 完成增量维护：
-
-$$\textit{ans} \leftarrow \textit{ans} \oplus (\textit{old} \oplus c) \oplus (\textit{new} \oplus c)$$
+目标值为代数和 $\sum_{j=1}^i (f_{i, j} \oplus j)$。当 $f_c$ 从旧值 $\textit{old}$ 被松弛为更大值 $\textit{new} = \textit{dep}[u]$ 时，其对总和的贡献项发生变化。利用差分可以在 $\mathcal{O}(1)$ 内增量更新全局累加和：
 
 
-* **算子对比说明**：若题目要求的是常规算术累加和 $\sum_{j=1}^i (f_{i, j} \oplus j)$，则采用加减更新算子 $\textit{ans} \leftarrow \textit{ans} - (\textit{old} \oplus c) + (\textit{new} \oplus c)$；针对本题题面明确规定的大异或和 $\bigoplus$，应严格采用自反异或操作 `^=` 进行状态流转。
+$$\textit{ans} \leftarrow \textit{ans} - (\textit{old} \oplus c) + (\textit{new} \oplus c)$$
+
+
+整个过程无需重构数组，实现了严格高效的在线处理。
 
 ---
 
 ### 复杂度分析
 
-* **时间复杂度**：$\mathcal{O}\left(\sum_{i=1}^n \vert{}s_i\vert{} \cdot \vert{}\Sigma\vert{}\right)$，其中字符集大小 $\vert{}\Sigma\vert{} = 26$。每个字符在 Trie 树上匹配与开辟节点为 $\mathcal{O}(1)$ 常数时间，沿途计数累加、状态松弛与异或更新均为 $\mathcal{O}(1)$。整体时间严格正比于输入字符总长度，在 $5 \cdot 10^5$ 规模下耗时约数十毫秒，远低于 $1.0\text{ s}$ 限时。
-* **空间复杂度**：$\mathcal{O}\left(\vert{}\Sigma\vert{} \cdot \sum_{i=1}^n \vert{}s_i\vert{}\right)$。Trie 树的节点总数不超过 $\sum \vert{}s_i\vert{} + 1$。转移数组与属性数组占用内存约数十兆字节，远低于 $1024\text{ MB}$ 空间限制。
+* **时间复杂度**：$\mathcal{O}\left(\sum_{i=1}^n \vert{}s_i\vert{} \cdot \vert{}\Sigma\vert{}\right)$，其中字符集大小 $\vert{}\Sigma\vert{} = 26$。每个字符在 Trie 树上转移、开辟节点的时间为 $\mathcal{O}(1)$；沿途累计经过次数、更新 $f$ 数组以及维护答案总和均在常数时间完成。总运算次数严格正比于输入字符总数，在 $5 \cdot 10^5$ 规模下耗时约数十毫秒，远优于 $1.0\text{ s}$ 限制。
+* **空间复杂度**：$\mathcal{O}\left(\vert{}\Sigma\vert{} \cdot \sum_{i=1}^n \vert{}s_i\vert{}\right)$。Trie 树的节点数至多为 $\sum \vert{}s_i\vert{} + 1$。转移数组、节点深度数组、计数数组及 $f$ 数组占用内存约数十兆字节，远低于 $1024\text{ MB}$ 空间限制。
 
 ---
 
@@ -581,11 +581,11 @@ using namespace std;
 const int N = 500005;
 const int SIGMA = 26;
 
-// tree 存储字典树边转移，cnt 记录经过该节点的字符串数量
-// ch 记录节点的深度（即公共前缀长度），f[j] 记录选 j 个串时的最大 LCP
+// tree 存储 Trie 树边转移，cnt 记录经过各节点的字符串数
+// ch 记录节点的深度（即公共前缀长度），f[j] 维护选 j 个串时的最大 LCP
 int tree[N][SIGMA], cnt[N], ch[N], f[N];
 int idx;
-long long ans; // 维护当前前缀的动态异或和
+long long ans; // 维护当前前缀阶段的累加和，数值上限约 5e11，需使用 64 位整数
 
 void insert(const string& s) {
     int u = 0;
@@ -598,18 +598,17 @@ void insert(const string& s) {
         u = tree[u][x];
         cnt[u]++;
 
-        // 仅当当前节点深度大于已记录的 f[cnt[u]] 时进行状态松弛
+        // 当节点深度大于当前 f[cnt[u]] 时触发松弛
         if (ch[u] > f[cnt[u]]) {
-            // 利用异或的自反性质：先抵消旧状态贡献，再并入新状态贡献
-            ans ^= (1LL * f[cnt[u]] ^ cnt[u]);
+            // 先扣除旧值的异或贡献，再累加新值的异或贡献
+            ans += (1LL * (ch[u] ^ cnt[u])) - (1LL * (f[cnt[u]] ^ cnt[u]));
             f[cnt[u]] = ch[u];
-            ans ^= (1LL * f[cnt[u]] ^ cnt[u]);
         }
     }
 }
 
 int main() {
-    // 提高标准 I/O 效率
+    // 解绑标准 I/O，优化输入输出流性能
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
@@ -619,11 +618,13 @@ int main() {
     string s;
     for (int i = 1; i <= n; i++) {
         cin >> s;
-        // 扩展第 i 项的初始状态：f[i] 初始为 0，贡献项为 (0 ^ i) = i
-        ans ^= i;
-        
+        // 扩展第 i 项的初始状态：f[i] 初始为 0，带来初始贡献 (0 ^ i) = i
+        ans += i;
+
+        // 将当前字符串插入字典树，动态维护沿途状态
         insert(s);
-        
+
+        // 输出当前前缀 1 ~ i 的累加和结果
         cout << ans << "\n";
     }
 
