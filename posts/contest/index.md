@@ -2,3 +2,4 @@
 
 - [牛客](牛客/index.md)
 - [cf](cf/index.md)
+- [XCPC](XCPC/index.md)
