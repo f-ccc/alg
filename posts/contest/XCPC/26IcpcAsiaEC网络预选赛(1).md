@@ -2,7 +2,7 @@
 date: 2026-09-6
 ---
 
-# 2026 ICPC Asia EC 网络赛
+# 2026 ICPC Asia EC 网络赛（1）
 
 点击查看[题面](/pdf/2026IcpcAsiaEC网络预选赛.pdf){target="_blank" rel="noopener noreferrer"}          
 点击查看[题解(en)](/pdf/2026IcpcAsiaEC网络预选赛题解-en.pdf){target="_blank" rel="noopener noreferrer"}  
