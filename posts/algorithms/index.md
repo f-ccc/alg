@@ -9,3 +9,6 @@
 1. [kmp](kmp.md)
 2. [Manacher算法](Manacher算法.md)
 3. [z函数](z函数.md)
+
+## 图论
+1. [kruskal重构树](kruskal重构树.md)

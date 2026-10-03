@@ -1,0 +1,1049 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Kruskal 重构树算法交互推演器</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    body {
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    }
+    .font-mono-code {
+      font-family: 'JetBrains Mono', monospace;
+    }
+    /* 自定义发光与动效 */
+    .glow-cyan {
+      filter: drop-shadow(0 0 8px rgba(6, 182, 212, 0.6));
+    }
+    .glow-emerald {
+      filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+    }
+    .glow-rose {
+      filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.6));
+    }
+    .glow-amber {
+      filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.7));
+    }
+    /* 隐藏滚动条 */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+  </style>
+</head>
+<body class="bg-[#090d16] text-slate-200 min-h-screen flex flex-col antialiased select-none">
+  <header class="border-b border-slate-800 bg-[#0c1220]/90 backdrop-blur sticky top-0 z-40 px-5 py-3">
+    <div class="max-w-[1700px] mx-auto flex flex-wrap items-center justify-between gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-9 h-9 rounded-lg bg-cyan-500/20 border border-cyan-500/40 flex items-center justify-center text-cyan-400 font-mono-code font-bold text-lg">
+          K
+        </div>
+        <div>
+          <div class="flex items-center gap-2">
+            <h1 class="text-base font-bold text-white tracking-wide font-mono-code">KRUSKAL RECONSTRUCTION TREE</h1>
+            <span class="text-xs px-2 py-0.5 rounded border border-cyan-500/30 text-cyan-400 bg-cyan-950/40 font-mono-code">XCPC ENGINE</span>
+          </div>
+          <p class="text-xs text-slate-400">最小瓶颈路径与子树可达性交互分析平台</p>
+        </div>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 bg-slate-900 border border-slate-700/80 rounded-lg p-1 text-xs">
+          <span class="text-slate-400 px-2 font-mono-code">预设图:</span>
+          <button id="btn-preset-1" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-200 transition">5点标准图</button>
+          <button id="btn-preset-2" class="px-2.5 py-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">6点环状割边</button>
+          <button id="btn-preset-3" class="px-2.5 py-1 rounded hover:bg-slate-800 text-slate-400 hover:text-slate-200 transition">连通块分治</button>
+        </div>
+
+        <button id="btn-custom-graph" class="flex items-center gap-1.5 px-3 py-1.5 rounded-lg border border-slate-700 bg-slate-800/80 hover:bg-slate-700 text-xs font-mono-code text-slate-200 transition">
+          <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+          自定义边权
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <div class="border-b border-slate-800/80 bg-[#0e1526] px-5 py-2.5">
+    <div class="max-w-[1700px] mx-auto flex flex-wrap items-center justify-between gap-4 text-xs">
+      <div class="flex items-center gap-2">
+        <button id="btn-reset" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 font-mono-code text-slate-300 transition flex items-center gap-1">
+          <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+          重置
+        </button>
+        <button id="btn-prev" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 font-mono-code text-slate-300 transition flex items-center gap-1">
+          上一步 (◀)
+        </button>
+        <button id="btn-play" class="px-4 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 font-semibold font-mono-code text-white transition flex items-center gap-1 shadow-lg shadow-cyan-950">
+          <span id="play-text">自动演进 (▶)</span>
+        </button>
+        <button id="btn-next" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 border border-slate-700 font-mono-code text-slate-300 transition flex items-center gap-1">
+          下一步 (▶)
+        </button>
+      </div>
+
+      <div class="flex items-center gap-6">
+        <div class="flex items-center gap-2">
+          <span class="text-slate-400 font-mono-code">速度:</span>
+          <input id="slider-speed" type="range" min="300" max="2200" step="100" value="1000" class="w-24 accent-cyan-500 cursor-pointer">
+          <span id="label-speed" class="text-slate-400 font-mono-code w-10 text-right">1.0s</span>
+        </div>
+
+        <div class="h-4 w-px bg-slate-800"></div>
+
+        <div class="flex items-center gap-2">
+          <button id="btn-mode-query" class="px-3 py-1.5 rounded border border-indigo-500/40 bg-indigo-950/30 hover:bg-indigo-900/50 text-indigo-300 font-mono-code transition flex items-center gap-1.5">
+            <span class="inline-block w-2 h-2 rounded-full bg-indigo-400 animate-pulse"></span>
+            LCA瓶颈查询模式
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <main class="flex-1 max-w-[1700px] w-full mx-auto p-4 grid grid-cols-1 lg:grid-cols-12 gap-4">
+    <!-- 左侧原图视窗 -->
+    <div class="lg:col-span-5 flex flex-col bg-[#0e1627] border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+      <div class="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900/70">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+          <span class="text-xs font-bold font-mono-code text-slate-200 uppercase tracking-wider">面板 A · 原无向加权图 $G=(V, E)$</span>
+        </div>
+        <span class="text-[11px] font-mono-code text-slate-400">绿色: 已选入MST | 虚线: 形成环丢弃</span>
+      </div>
+      <div class="relative flex-1 min-h-[360px] bg-[#0a0f1d] overflow-hidden flex items-center justify-center">
+        <svg id="svg-graph" class="w-full h-full" viewBox="0 0 520 380"></svg>
+        <div id="graph-hint" class="absolute bottom-2 left-3 text-[11px] font-mono-code text-slate-500 pointer-events-none">
+          点数 N = <span id="hint-n" class="text-slate-300">5</span>, 边数 M = <span id="hint-m" class="text-slate-300">7</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- 右侧重构树视窗 -->
+    <div class="lg:col-span-7 flex flex-col bg-[#0e1627] border border-slate-800 rounded-xl overflow-hidden shadow-xl">
+      <div class="flex items-center justify-between px-4 py-2.5 border-b border-slate-800 bg-slate-900/70">
+        <div class="flex items-center gap-2">
+          <span class="w-2.5 h-2.5 rounded-full bg-cyan-400"></span>
+          <span class="text-xs font-bold font-mono-code text-slate-200 uppercase tracking-wider">面板 B · Kruskal 重构树 $T$ (叶节点 $1..n$, 虚节点 $n+1..2n-1$)</span>
+        </div>
+        <div id="tree-status" class="text-[11px] font-mono-code text-cyan-400">
+          构建阶段
+        </div>
+      </div>
+      <div class="relative flex-1 min-h-[360px] bg-[#0a0f1d] overflow-hidden flex items-center justify-center">
+        <svg id="svg-tree" class="w-full h-full" viewBox="0 0 720 380"></svg>
+        <!-- 查询模式提示 -->
+        <div id="query-overlay-hint" class="hidden absolute top-3 left-4 bg-indigo-950/80 border border-indigo-500/50 backdrop-blur rounded px-3 py-1.5 text-xs font-mono-code text-indigo-200 shadow-md">
+          已开启查询：请依次点击树底部两个叶节点 [u] 和 [v]
+        </div>
+      </div>
+    </div>
+
+    <!-- 下方运行状态仪表盘 -->
+    <div class="lg:col-span-12 grid grid-cols-1 lg:grid-cols-12 gap-4">
+      
+      <!-- 边排序队列与推演步骤 -->
+      <div class="lg:col-span-4 bg-[#0e1627] border border-slate-800 rounded-xl p-3 flex flex-col h-64">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800 text-xs font-mono-code">
+          <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-cyan-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 10h16M4 14h16M4 18h16"/></svg>
+            边权升序队列 (Sorted Edges)
+          </span>
+          <span id="step-counter" class="text-cyan-400">Step 0 / 0</span>
+        </div>
+        <div id="edge-list-container" class="flex-1 overflow-y-auto no-scrollbar space-y-1.5 pt-2 text-xs font-mono-code">
+          <!-- 动态渲染边队列 -->
+        </div>
+      </div>
+
+      <!-- 并查集实时状态与数学不变式 -->
+      <div class="lg:col-span-4 bg-[#0e1627] border border-slate-800 rounded-xl p-3 flex flex-col h-64">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800 text-xs font-mono-code">
+          <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            并查集数组状态 (DSU Table)
+          </span>
+          <span class="text-slate-500">fa[x] 根指向</span>
+        </div>
+        <div class="flex-1 overflow-y-auto pt-2 no-scrollbar">
+          <div id="dsu-table" class="grid grid-cols-5 gap-1.5 text-center font-mono-code text-xs">
+            <!-- 动态渲染并查集 -->
+          </div>
+        </div>
+        <div class="pt-2 border-t border-slate-800 text-[11px] text-slate-400 font-mono-code flex justify-between">
+          <span>重构树大根堆性质：</span>
+          <span class="text-cyan-300">val[fa] ≥ val[son]</span>
+        </div>
+      </div>
+
+      <!-- 实时决策剖析与定理验证日志 -->
+      <div class="lg:col-span-4 bg-[#0e1627] border border-slate-800 rounded-xl p-3 flex flex-col h-64">
+        <div class="flex items-center justify-between pb-2 border-b border-slate-800 text-xs font-mono-code">
+          <span class="text-slate-300 font-semibold flex items-center gap-1.5">
+            <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+            推演决策分析 (Algorithm Trace)
+          </span>
+          <span class="text-amber-400/80">O(M log M + M α(N))</span>
+        </div>
+        <div id="log-terminal" class="flex-1 overflow-y-auto no-scrollbar font-mono-code text-xs text-slate-300 p-2 bg-[#090e1a] rounded mt-2 space-y-1.5 border border-slate-800/80">
+          <div class="text-slate-500">> Kruskal 重构树算法准备就绪。</div>
+        </div>
+      </div>
+
+    </div>
+  </main>
+
+  <!-- 自定义边权输入模态框 -->
+  <div id="modal-custom" class="hidden fixed inset-0 z-50 bg-black/70 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-[#0e1627] border border-slate-700 rounded-xl max-w-lg w-full p-5 shadow-2xl">
+      <div class="flex items-center justify-between pb-3 border-b border-slate-800">
+        <h3 class="text-sm font-bold font-mono-code text-white">输入自定义图数据</h3>
+        <button id="modal-close" class="text-slate-400 hover:text-white">&times;</button>
+      </div>
+      <div class="py-3 text-xs space-y-2">
+        <p class="text-slate-400 font-mono-code">第一行输入节点数 $N$ (建议 3~8)，之后每行输入边: <code>u v w</code></p>
+        <textarea id="custom-input-text" rows="6" class="w-full bg-[#090e1a] border border-slate-700 rounded p-2 text-xs font-mono-code text-cyan-300 focus:outline-none focus:border-cyan-500"></textarea>
+      </div>
+      <div class="flex justify-end gap-2 pt-2">
+        <button id="modal-btn-cancel" class="px-3 py-1.5 rounded bg-slate-800 hover:bg-slate-700 text-xs font-mono-code">取消</button>
+        <button id="modal-btn-apply" class="px-4 py-1.5 rounded bg-cyan-600 hover:bg-cyan-500 text-white font-mono-code text-xs font-semibold">确认并构建</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // 经典预设图配置
+    const PRESETS = {
+      preset1: {
+        n: 5,
+        edges: [
+          { u: 1, v: 2, w: 3 },
+          { u: 1, v: 3, w: 1 },
+          { u: 2, v: 3, w: 4 },
+          { u: 2, v: 4, w: 2 },
+          { u: 3, v: 4, w: 5 },
+          { u: 4, v: 5, w: 6 },
+          { u: 3, v: 5, w: 7 }
+        ]
+      },
+      preset2: {
+        n: 6,
+        edges: [
+          { u: 1, v: 2, w: 1 },
+          { u: 2, v: 3, w: 2 },
+          { u: 3, v: 4, w: 6 },
+          { u: 4, v: 5, w: 3 },
+          { u: 5, v: 6, w: 4 },
+          { u: 1, v: 6, w: 8 },
+          { u: 2, v: 5, w: 5 }
+        ]
+      },
+      preset3: {
+        n: 5,
+        edges: [
+          { u: 1, v: 2, w: 2 },
+          { u: 2, v: 3, w: 4 },
+          { u: 1, v: 3, w: 6 },
+          { u: 3, v: 4, w: 9 },
+          { u: 4, v: 5, w: 1 }
+        ]
+      }
+    };
+
+    let currentGraph = JSON.parse(JSON.stringify(PRESETS.preset1));
+    let sortedEdges = [];
+    let steps = [];
+    let currentStepIdx = 0;
+    let timer = null;
+    let isPlaying = false;
+    let playInterval = 1000;
+
+    // 查询模式状态
+    let isQueryMode = false;
+    let querySelectedLeaves = [];
+
+    function precomputeSteps() {
+      const n = currentGraph.n;
+      // 边升序排序 (Kruskal核心)
+      sortedEdges = currentGraph.edges.map((e, idx) => ({ ...e, originalId: idx }));
+      sortedEdges.sort((a, b) => a.w - b.w);
+
+      steps = [];
+      const totalMaxNodes = 2 * n - 1;
+      let dsu = Array.from({ length: totalMaxNodes + 1 }, (_, i) => i);
+      let treeChildren = Array.from({ length: totalMaxNodes + 1 }, () => []);
+      let nodeValues = Array(totalMaxNodes + 1).fill(0);
+      let nextNewNode = n;
+
+      function find(x) {
+        let root = x;
+        while (root !== dsu[root]) root = dsu[root];
+        let curr = x;
+        while (curr !== root) {
+          let nxt = dsu[curr];
+          dsu[curr] = root;
+          curr = nxt;
+        }
+        return root;
+      }
+
+      // Step 0: 初始状态 (仅原图点作为重构树叶子)
+      steps.push({
+        type: 'INIT',
+        edgeIdx: -1,
+        activeEdge: null,
+        dsu: [...dsu],
+        treeChildren: treeChildren.map(arr => [...arr]),
+        nodeValues: [...nodeValues],
+        acceptedEdges: [],
+        rejectedEdges: [],
+        curNewNode: n,
+        log: `初始化完成：原图包含 ${n} 个独立点，并查集初始化为各自独立连通块。`
+      });
+
+      let acceptedEdges = [];
+      let rejectedEdges = [];
+
+      for (let i = 0; i < sortedEdges.length; i++) {
+        const edge = sortedEdges[i];
+        const u = edge.u;
+        const v = edge.v;
+        const w = edge.w;
+
+        const fu = find(u);
+        const fv = find(v);
+
+        if (fu !== fv) {
+          nextNewNode++;
+          const p = nextNewNode;
+          nodeValues[p] = w;
+          // 重构树结构连边
+          treeChildren[p].push(fu, fv);
+          // 并查集挂接
+          dsu[fu] = p;
+          dsu[fv] = p;
+          dsu[p] = p;
+
+          acceptedEdges.push(edge);
+
+          steps.push({
+            type: 'ACCEPT',
+            edgeIdx: i,
+            activeEdge: edge,
+            fu,
+            fv,
+            newNode: p,
+            dsu: [...dsu],
+            treeChildren: treeChildren.map(arr => [...arr]),
+            nodeValues: [...nodeValues],
+            acceptedEdges: [...acceptedEdges],
+            rejectedEdges: [...rejectedEdges],
+            curNewNode: nextNewNode,
+            log: `检视边 (${u}, ${v}, w=${w})：find(${u})=${fu}, find(${v})=${fv} 互异。新建重构树节点 ${p} (val=${w})，作为 ${fu} 和 ${fv} 的父节点。`
+          });
+        } else {
+          rejectedEdges.push(edge);
+          steps.push({
+            type: 'REJECT',
+            edgeIdx: i,
+            activeEdge: edge,
+            fu,
+            fv,
+            newNode: null,
+            dsu: [...dsu],
+            treeChildren: treeChildren.map(arr => [...arr]),
+            nodeValues: [...nodeValues],
+            acceptedEdges: [...acceptedEdges],
+            rejectedEdges: [...rejectedEdges],
+            curNewNode: nextNewNode,
+            log: `检视边 (${u}, ${v}, w=${w})：两端点已在同一连通块 (根=${fu})。选入将成环，舍弃该边。`
+          });
+        }
+      }
+    }
+
+    function getOriginalGraphNodePositions(n) {
+      const cx = 260, cy = 190, r = 135;
+      const pos = {};
+      for (let i = 1; i <= n; i++) {
+        // 环状均匀分布布局
+        const angle = (2 * Math.PI / n) * (i - 1) - Math.PI / 2;
+        pos[i] = {
+          x: cx + r * Math.cos(angle),
+          y: cy + r * Math.sin(angle)
+        };
+      }
+      return pos;
+    }
+
+    function calculateTreeLayout(stepState) {
+      const n = currentGraph.n;
+      const totalCreated = stepState.curNewNode;
+      const children = stepState.treeChildren;
+      
+      const pos = {};
+      // 1. 底层叶子节点 (1..n) 均匀排列在底部
+      const paddingX = 70;
+      const availWidth = 720 - 2 * paddingX;
+      const stepX = n > 1 ? availWidth / (n - 1) : availWidth / 2;
+      const baseY = 330;
+
+      for (let i = 1; i <= n; i++) {
+        pos[i] = {
+          x: paddingX + (i - 1) * stepX,
+          y: baseY
+        };
+      }
+
+      // 2. 内部节点层级与横坐标计算
+      // 节点 p 的 X 为子节点的平均值；Y 根据树高度向上递减
+      for (let p = n + 1; p <= totalCreated; p++) {
+        const ch = children[p];
+        if (ch && ch.length === 2) {
+          const c1 = ch[0];
+          const c2 = ch[1];
+          const x1 = pos[c1] ? pos[c1].x : 360;
+          const x2 = pos[c2] ? pos[c2].x : 360;
+          const y1 = pos[c1] ? pos[c1].y : baseY;
+          const y2 = pos[c2] ? pos[c2].y : baseY;
+          
+          pos[p] = {
+            x: (x1 + x2) / 2,
+            y: Math.min(y1, y2) - 58
+          };
+        }
+      }
+      return pos;
+    }
+
+    function renderOriginalGraph(stepState) {
+      const svg = document.getElementById('svg-graph');
+      svg.innerHTML = '';
+      const n = currentGraph.n;
+      const pos = getOriginalGraphNodePositions(n);
+
+      // 定义渐变与箭头滤镜
+      const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+      defs.innerHTML = `
+        <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+          <feGaussianBlur stdDeviation="3" result="blur" />
+          <feComposite in="SourceGraphic" in2="blur" operator="over" />
+        </filter>
+      `;
+      svg.appendChild(defs);
+
+      // 1. 绘制所有原图边
+      currentGraph.edges.forEach(e => {
+        const p1 = pos[e.u];
+        const p2 = pos[e.v];
+        if (!p1 || !p2) return;
+
+        // 判断边状态
+        const isCurrent = stepState.activeEdge && 
+          ((stepState.activeEdge.u === e.u && stepState.activeEdge.v === e.v) ||
+           (stepState.activeEdge.u === e.v && stepState.activeEdge.v === e.u));
+        
+        const isAccepted = stepState.acceptedEdges.some(ae => 
+          (ae.u === e.u && ae.v === e.v) || (ae.u === e.v && ae.v === e.u));
+        
+        const isRejected = stepState.rejectedEdges.some(re => 
+          (re.u === e.u && re.v === e.v) || (re.u === e.v && re.v === e.u));
+
+        let strokeColor = '#334155'; // 默认暗色
+        let strokeWidth = '2';
+        let strokeDash = 'none';
+
+        if (isCurrent) {
+          strokeColor = '#f59e0b'; // 当前评估中: 琥珀金
+          strokeWidth = '3.5';
+        } else if (isAccepted) {
+          strokeColor = '#10b981'; // 选入: 翡翠绿
+          strokeWidth = '3';
+        } else if (isRejected) {
+          strokeColor = '#f43f5e'; // 舍弃: 玫瑰红
+          strokeDash = '5,4';
+          strokeWidth = '1.8';
+        }
+
+        const line = document.createElementNS('http://www.w3.org/2000/svg', 'line');
+        line.setAttribute('x1', p1.x);
+        line.setAttribute('y1', p1.y);
+        line.setAttribute('x2', p2.x);
+        line.setAttribute('y2', p2.y);
+        line.setAttribute('stroke', strokeColor);
+        line.setAttribute('stroke-width', strokeWidth);
+        if (strokeDash !== 'none') line.setAttribute('stroke-dasharray', strokeDash);
+        svg.appendChild(line);
+
+        // 边权 Badge 标签
+        const midX = (p1.x + p2.x) / 2;
+        const midY = (p1.y + p2.y) / 2;
+        
+        const bgRect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+        bgRect.setAttribute('x', midX - 12);
+        bgRect.setAttribute('y', midY - 10);
+        bgRect.setAttribute('width', 24);
+        bgRect.setAttribute('height', 20);
+        bgRect.setAttribute('rx', 4);
+        bgRect.setAttribute('fill', '#090d16');
+        bgRect.setAttribute('stroke', strokeColor);
+        bgRect.setAttribute('stroke-width', '1');
+        svg.appendChild(bgRect);
+
+        const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        text.setAttribute('x', midX);
+        text.setAttribute('y', midY + 4);
+        text.setAttribute('fill', isCurrent ? '#fbbf24' : (isAccepted ? '#34d399' : '#94a3b8'));
+        text.setAttribute('font-size', '11');
+        text.setAttribute('font-family', 'JetBrains Mono');
+        text.setAttribute('font-weight', '600');
+        text.setAttribute('text-anchor', 'middle');
+        text.textContent = e.w;
+        svg.appendChild(text);
+      });
+
+      // 2. 绘制原图节点 (1..N)
+      for (let i = 1; i <= n; i++) {
+        const p = pos[i];
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+
+        const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        circle.setAttribute('cx', p.x);
+        circle.setAttribute('cy', p.y);
+        circle.setAttribute('r', 18);
+        circle.setAttribute('fill', '#1e293b');
+        circle.setAttribute('stroke', '#38bdf8');
+        circle.setAttribute('stroke-width', '2.2');
+        g.appendChild(circle);
+
+        const label = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+        label.setAttribute('x', p.x);
+        label.setAttribute('y', p.y + 4.5);
+        label.setAttribute('fill', '#f8fafc');
+        label.setAttribute('font-size', '13');
+        label.setAttribute('font-family', 'JetBrains Mono');
+        label.setAttribute('font-weight', 'bold');
+        label.setAttribute('text-anchor', 'middle');
+        label.textContent = i;
+        g.appendChild(label);
+
+        svg.appendChild(g);
+      }
+    }
+
+    function renderReconstructionTree(stepState) {
+      const svg = document.getElementById('svg-tree');
+      svg.innerHTML = '';
+      const n = currentGraph.n;
+      const totalCreated = stepState.curNewNode;
+      const pos = calculateTreeLayout(stepState);
+      const children = stepState.treeChildren;
+
+      // 1. 绘制树边 (连接父节点与子节点)
+      for (let p = n + 1; p <= totalCreated; p++) {
+        const ch = children[p];
+        if (!ch) continue;
+        ch.forEach(c => {
+          if (!pos[p] || !pos[c]) return;
+
+          // 平滑三阶贝塞尔曲线
+          const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+          const dy = (pos[c].y - pos[p].y) * 0.5;
+          const d = `M ${pos[p].x} ${pos[p].y} C ${pos[p].x} ${pos[p].y + dy}, ${pos[c].x} ${pos[c].y - dy}, ${pos[c].x} ${pos[c].y}`;
+          
+          let strokeColor = '#0284c7';
+          let strokeWidth = '2.2';
+          
+          // 若为本步骤刚建立的边，进行高亮
+          if (stepState.newNode === p) {
+            strokeColor = '#38bdf8';
+            strokeWidth = '3';
+          }
+
+          path.setAttribute('d', d);
+          path.setAttribute('fill', 'none');
+          path.setAttribute('stroke', strokeColor);
+          path.setAttribute('stroke-width', strokeWidth);
+          path.setAttribute('stroke-linecap', 'round');
+          svg.appendChild(path);
+        });
+      }
+
+      // 2. 绘制节点：分叶子节点 (1..n) 与 虚节点 (n+1..totalCreated)
+      for (let id = 1; id <= totalCreated; id++) {
+        if (!pos[id]) continue;
+        const p = pos[id];
+        const isLeaf = (id <= n);
+
+        const g = document.createElementNS('http://www.w3.org/2000/svg', 'g');
+        g.style.cursor = isLeaf && isQueryMode ? 'pointer' : 'default';
+
+        if (isLeaf) {
+          // 叶节点交互点击（LCA查询模式）
+          if (isQueryMode) {
+            g.onclick = () => onLeafClick(id);
+          }
+
+          const isSelected = querySelectedLeaves.includes(id);
+
+          const circle = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+          circle.setAttribute('cx', p.x);
+          circle.setAttribute('cy', p.y);
+          circle.setAttribute('r', 16);
+          circle.setAttribute('fill', isSelected ? '#4338ca' : '#1e293b');
+          circle.setAttribute('stroke', isSelected ? '#a5b4fc' : '#0284c7');
+          circle.setAttribute('stroke-width', isSelected ? '3.5' : '2');
+          if (isSelected) circle.setAttribute('class', 'glow-cyan');
+          g.appendChild(circle);
+
+          const text = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          text.setAttribute('x', p.x);
+          text.setAttribute('y', p.y + 4.5);
+          text.setAttribute('fill', '#f8fafc');
+          text.setAttribute('font-size', '12');
+          text.setAttribute('font-family', 'JetBrains Mono');
+          text.setAttribute('font-weight', 'bold');
+          text.setAttribute('text-anchor', 'middle');
+          text.textContent = id;
+          g.appendChild(text);
+
+          // 原始点标识徽章
+          const badge = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          badge.setAttribute('x', p.x);
+          badge.setAttribute('y', p.y + 26);
+          badge.setAttribute('fill', '#64748b');
+          badge.setAttribute('font-size', '9');
+          badge.setAttribute('font-family', 'JetBrains Mono');
+          badge.setAttribute('text-anchor', 'middle');
+          badge.textContent = `leaf`;
+          g.appendChild(badge);
+
+        } else {
+          // 内部虚节点 (方形或圆角矩形，突出权值)
+          const isLatest = (stepState.newNode === id);
+
+          const rect = document.createElementNS('http://www.w3.org/2000/svg', 'rect');
+          rect.setAttribute('x', p.x - 22);
+          rect.setAttribute('y', p.y - 15);
+          rect.setAttribute('width', 44);
+          rect.setAttribute('height', 30);
+          rect.setAttribute('rx', 6);
+          rect.setAttribute('fill', isLatest ? '#1e3a5f' : '#0f172a');
+          rect.setAttribute('stroke', isLatest ? '#38bdf8' : '#0ea5e9');
+          rect.setAttribute('stroke-width', isLatest ? '2.5' : '1.8');
+          if (isLatest) rect.setAttribute('class', 'glow-cyan');
+          g.appendChild(rect);
+
+          // 显示节点编号与点权
+          const weightText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          weightText.setAttribute('x', p.x);
+          weightText.setAttribute('y', p.y + 1);
+          weightText.setAttribute('fill', '#38bdf8');
+          weightText.setAttribute('font-size', '12');
+          weightText.setAttribute('font-family', 'JetBrains Mono');
+          weightText.setAttribute('font-weight', 'bold');
+          weightText.setAttribute('text-anchor', 'middle');
+          weightText.textContent = `w=${stepState.nodeValues[id]}`;
+          g.appendChild(weightText);
+
+          const idText = document.createElementNS('http://www.w3.org/2000/svg', 'text');
+          idText.setAttribute('x', p.x);
+          idText.setAttribute('y', p.y + 11);
+          idText.setAttribute('fill', '#94a3b8');
+          idText.setAttribute('font-size', '8');
+          idText.setAttribute('font-family', 'JetBrains Mono');
+          idText.setAttribute('text-anchor', 'middle');
+          idText.textContent = `Node ${id}`;
+          g.appendChild(idText);
+        }
+
+        svg.appendChild(g);
+      }
+    }
+
+    function updateDashboard(stepState) {
+      // 1. 边队列渲染
+      const edgeContainer = document.getElementById('edge-list-container');
+      edgeContainer.innerHTML = '';
+      document.getElementById('step-counter').textContent = `Step ${currentStepIdx} / ${steps.length - 1}`;
+
+      sortedEdges.forEach((e, idx) => {
+        const isCurrent = (stepState.edgeIdx === idx);
+        const isAccepted = stepState.acceptedEdges.some(ae => ae.originalId === e.originalId);
+        const isRejected = stepState.rejectedEdges.some(re => re.originalId === e.originalId);
+
+        let borderClass = 'border-slate-800 bg-slate-900/60 text-slate-400';
+        let statusBadge = `<span class="text-slate-600">待检视</span>`;
+
+        if (isCurrent) {
+          borderClass = 'border-amber-500/80 bg-amber-950/30 text-amber-200 glow-amber';
+          statusBadge = `<span class="text-amber-400 animate-pulse font-bold">● 评估中</span>`;
+        } else if (isAccepted) {
+          borderClass = 'border-emerald-500/60 bg-emerald-950/20 text-emerald-300';
+          statusBadge = `<span class="text-emerald-400 font-semibold">✓ 树节点合并</span>`;
+        } else if (isRejected) {
+          borderClass = 'border-rose-900/50 bg-rose-950/20 text-slate-500';
+          statusBadge = `<span class="text-rose-500">✕ 成环跳过</span>`;
+        }
+
+        const div = document.createElement('div');
+        div.className = `flex items-center justify-between p-2 rounded border ${borderClass} transition-all duration-200`;
+        div.innerHTML = `
+          <div class="flex items-center gap-2">
+            <span class="text-slate-500">#${idx + 1}</span>
+            <span class="font-bold">(${e.u}, ${e.v})</span>
+            <span class="px-1.5 py-0.5 rounded bg-slate-800 text-[10px] text-cyan-400">w = ${e.w}</span>
+          </div>
+          <div>${statusBadge}</div>
+        `;
+        edgeContainer.appendChild(div);
+      });
+
+      // 2. DSU 并查集表格渲染
+      const dsuTable = document.getElementById('dsu-table');
+      dsuTable.innerHTML = '';
+      const totalCreated = stepState.curNewNode;
+
+      for (let i = 1; i <= totalCreated; i++) {
+        const root = stepState.dsu[i];
+        const isSelf = (root === i);
+        const isChanged = (stepState.newNode === root);
+
+        const card = document.createElement('div');
+        card.className = `p-1.5 rounded border ${isChanged ? 'border-cyan-500 bg-cyan-950/40 text-cyan-300' : 'border-slate-800 bg-[#0a0f1d] text-slate-400'} flex flex-col items-center`;
+        card.innerHTML = `
+          <span class="text-[10px] text-slate-500">#${i}</span>
+          <span class="font-bold ${isSelf ? 'text-emerald-400' : 'text-slate-200'}">${root}</span>
+        `;
+        dsuTable.appendChild(card);
+      }
+
+      // 3. 算法日志渲染
+      const logBox = document.getElementById('log-terminal');
+      const logEntry = document.createElement('div');
+      logEntry.className = 'text-slate-300 border-l-2 border-cyan-500 pl-2 py-0.5';
+      logEntry.innerHTML = `
+        <span class="text-slate-500">[T=${currentStepIdx}]</span> 
+        <span>${stepState.log}</span>
+      `;
+      logBox.appendChild(logEntry);
+      logBox.scrollTop = logBox.scrollHeight;
+
+      // 4. 原图统计
+      document.getElementById('hint-n').textContent = currentGraph.n;
+      document.getElementById('hint-m').textContent = currentGraph.edges.length;
+    }
+
+    function onLeafClick(leafId) {
+      if (querySelectedLeaves.length >= 2) {
+        querySelectedLeaves = [];
+      }
+      querySelectedLeaves.push(leafId);
+
+      if (querySelectedLeaves.length === 1) {
+        renderCurrentState();
+        appendLog(`[LCA查询] 已选中第一个端点: Node ${leafId}。请选择第二个端点。`);
+      } else if (querySelectedLeaves.length === 2) {
+        const [u, v] = querySelectedLeaves;
+        computeAndHighlightLCA(u, v);
+      }
+    }
+
+    function computeAndHighlightLCA(u, v) {
+      const stepState = steps[currentStepIdx];
+      const children = stepState.treeChildren;
+      const totalCreated = stepState.curNewNode;
+
+      // 反向找每个节点的父节点
+      const parent = Array(totalCreated + 1).fill(0);
+      for (let p = 1; p <= totalCreated; p++) {
+        const ch = children[p];
+        if (ch) {
+          ch.forEach(c => parent[c] = p);
+        }
+      }
+
+      // 获取 u 的祖先集合与深度
+      const pathU = [];
+      let curr = u;
+      while (curr !== 0) {
+        pathU.push(curr);
+        curr = parent[curr];
+      }
+
+      const pathV = [];
+      curr = v;
+      while (curr !== 0) {
+        pathV.push(curr);
+        curr = parent[curr];
+      }
+
+      // 找 LCA
+      let lca = null;
+      for (const nodeU of pathU) {
+        if (pathV.includes(nodeU)) {
+          lca = nodeU;
+          break;
+        }
+      }
+
+      renderCurrentState(); // 重新绘制基础图形
+
+      if (!lca) {
+        appendLog(`[LCA查询] 错误：节点 ${u} 和 ${v} 在当前阶段尚未连通！`);
+        return;
+      }
+
+      const lcaWeight = stepState.nodeValues[lca];
+      appendLog(`[LCA查询结果] LCA(${u}, ${v}) = Node ${lca}, 瓶颈点权 val = ${lcaWeight}。表明原图中 ${u} 与 ${v} 间路径的最大边权极小值为 ${lcaWeight}。`);
+
+      // 在树图上高亮 LCA 路径
+      highlightTreePath(u, v, lca, parent, stepState);
+    }
+
+    function highlightTreePath(u, v, lca, parent, stepState) {
+      const svg = document.getElementById('svg-tree');
+      const pos = calculateTreeLayout(stepState);
+
+      function getPathToLCA(start, target) {
+        const edges = [];
+        let curr = start;
+        while (curr !== target) {
+          const p = parent[curr];
+          edges.push({ from: p, to: curr });
+          curr = p;
+        }
+        return edges;
+      }
+
+      const highlightEdges = [...getPathToLCA(u, lca), ...getPathToLCA(v, lca)];
+
+      highlightEdges.forEach(e => {
+        const p1 = pos[e.from];
+        const p2 = pos[e.to];
+        if (!p1 || !p2) return;
+
+        const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+        const dy = (p2.y - p1.y) * 0.5;
+        const d = `M ${p1.x} ${p1.y} C ${p1.x} ${p1.y + dy}, ${p2.x} ${p2.y - dy}, ${p2.x} ${p2.y}`;
+        
+        path.setAttribute('d', d);
+        path.setAttribute('fill', 'none');
+        path.setAttribute('stroke', '#f43f5e'); // 玫瑰红高亮路径
+        path.setAttribute('stroke-width', '4');
+        path.setAttribute('stroke-linecap', 'round');
+        path.setAttribute('class', 'glow-rose');
+        svg.appendChild(path);
+      });
+
+      // 高亮 LCA 节点
+      const pLca = pos[lca];
+      if (pLca) {
+        const lcaGlow = document.createElementNS('http://www.w3.org/2000/svg', 'circle');
+        lcaGlow.setAttribute('cx', pLca.x);
+        lcaGlow.setAttribute('cy', pLca.y);
+        lcaGlow.setAttribute('r', 28);
+        lcaGlow.setAttribute('fill', 'none');
+        lcaGlow.setAttribute('stroke', '#fbbf24');
+        lcaGlow.setAttribute('stroke-width', '3');
+        lcaGlow.setAttribute('stroke-dasharray', '4,3');
+        lcaGlow.setAttribute('class', 'glow-amber');
+        svg.appendChild(lcaGlow);
+      }
+    }
+
+    function appendLog(text) {
+      const logBox = document.getElementById('log-terminal');
+      const logEntry = document.createElement('div');
+      logEntry.className = 'text-indigo-300 border-l-2 border-indigo-400 pl-2 py-0.5 bg-indigo-950/20';
+      logEntry.innerHTML = `<span>${text}</span>`;
+      logBox.appendChild(logEntry);
+      logBox.scrollTop = logBox.scrollHeight;
+    }
+
+    function renderCurrentState() {
+      const stepState = steps[currentStepIdx];
+      renderOriginalGraph(stepState);
+      renderReconstructionTree(stepState);
+      updateDashboard(stepState);
+
+      // 查询模式状态提示
+      const treeStatus = document.getElementById('tree-status');
+      if (isQueryMode) {
+        treeStatus.textContent = 'LCA 瓶颈查询模式已就绪';
+        treeStatus.className = 'text-[11px] font-mono-code text-indigo-400';
+      } else {
+        const isFinished = (currentStepIdx === steps.length - 1);
+        treeStatus.textContent = isFinished ? '重构树已完全构建 (可切入查询)' : `推演步进中 [${currentStepIdx}/${steps.length - 1}]`;
+        treeStatus.className = isFinished ? 'text-[11px] font-mono-code text-emerald-400' : 'text-[11px] font-mono-code text-cyan-400';
+      }
+    }
+
+    function stepNext() {
+      if (currentStepIdx < steps.length - 1) {
+        currentStepIdx++;
+        renderCurrentState();
+      } else {
+        stopAutoPlay();
+      }
+    }
+
+    function stepPrev() {
+      if (currentStepIdx > 0) {
+        currentStepIdx--;
+        renderCurrentState();
+      }
+    }
+
+    function resetSimulation() {
+      stopAutoPlay();
+      currentStepIdx = 0;
+      querySelectedLeaves = [];
+      document.getElementById('log-terminal').innerHTML = '<div class="text-slate-500">> 推演已重置至初始状态。</div>';
+      renderCurrentState();
+    }
+
+    function toggleAutoPlay() {
+      if (isPlaying) {
+        stopAutoPlay();
+      } else {
+        startAutoPlay();
+      }
+    }
+
+    function startAutoPlay() {
+      if (currentStepIdx >= steps.length - 1) {
+        currentStepIdx = 0;
+      }
+      isPlaying = true;
+      document.getElementById('play-text').textContent = '暂停演进 (⏸)';
+      document.getElementById('btn-play').classList.replace('bg-cyan-600', 'bg-amber-600');
+      document.getElementById('btn-play').classList.replace('hover:bg-cyan-500', 'hover:bg-amber-500');
+      
+      timer = setInterval(() => {
+        if (currentStepIdx < steps.length - 1) {
+          stepNext();
+        } else {
+          stopAutoPlay();
+        }
+      }, playInterval);
+    }
+
+    function stopAutoPlay() {
+      isPlaying = false;
+      if (timer) clearInterval(timer);
+      timer = null;
+      document.getElementById('play-text').textContent = '自动演进 (▶)';
+      document.getElementById('btn-play').classList.replace('bg-amber-600', 'bg-cyan-600');
+      document.getElementById('btn-play').classList.replace('hover:bg-amber-500', 'hover:bg-cyan-500');
+    }
+
+    function loadGraph(graphData) {
+      stopAutoPlay();
+      currentGraph = graphData;
+      currentStepIdx = 0;
+      querySelectedLeaves = [];
+      precomputeSteps();
+      document.getElementById('log-terminal').innerHTML = `<div class="text-slate-500">> 载入新图：N=${currentGraph.n}, M=${currentGraph.edges.length} 条边。</div>`;
+      renderCurrentState();
+    }
+
+    // 预设按钮事件绑定
+    document.getElementById('btn-preset-1').onclick = () => loadGraph(JSON.parse(JSON.stringify(PRESETS.preset1)));
+    document.getElementById('btn-preset-2').onclick = () => loadGraph(JSON.parse(JSON.stringify(PRESETS.preset2)));
+    document.getElementById('btn-preset-3').onclick = () => loadGraph(JSON.parse(JSON.stringify(PRESETS.preset3)));
+
+    // 控制栏按钮绑定
+    document.getElementById('btn-next').onclick = () => { stopAutoPlay(); stepNext(); };
+    document.getElementById('btn-prev').onclick = () => { stopAutoPlay(); stepPrev(); };
+    document.getElementById('btn-reset').onclick = resetSimulation;
+    document.getElementById('btn-play').onclick = toggleAutoPlay;
+
+    // 速度滑块
+    const sliderSpeed = document.getElementById('slider-speed');
+    sliderSpeed.oninput = (e) => {
+      playInterval = 2500 - parseInt(e.target.value);
+      document.getElementById('label-speed').textContent = `${(playInterval / 1000).toFixed(1)}s`;
+      if (isPlaying) {
+        stopAutoPlay();
+        startAutoPlay();
+      }
+    };
+
+    // 查询模式切换
+    const btnModeQuery = document.getElementById('btn-mode-query');
+    const queryOverlayHint = document.getElementById('query-overlay-hint');
+    btnModeQuery.onclick = () => {
+      isQueryMode = !isQueryMode;
+      querySelectedLeaves = [];
+      if (isQueryMode) {
+        btnModeQuery.classList.add('bg-indigo-600', 'text-white');
+        queryOverlayHint.classList.remove('hidden');
+        appendLog('[模式切换] LCA 瓶颈查询已激活。点击重构树底部两个叶节点即可推导两点连通性极值。');
+      } else {
+        btnModeQuery.classList.remove('bg-indigo-600', 'text-white');
+        queryOverlayHint.classList.add('hidden');
+        appendLog('[模式切换] 已退出查询模式。');
+      }
+      renderCurrentState();
+    };
+
+    // 自定义数据输入弹窗
+    const modalCustom = document.getElementById('modal-custom');
+    const customInputText = document.getElementById('custom-input-text');
+    document.getElementById('btn-custom-graph').onclick = () => {
+      customInputText.value = "5\n1 2 4\n1 3 2\n2 3 1\n3 4 7\n4 5 3\n2 5 8";
+      modalCustom.classList.remove('hidden');
+    };
+    document.getElementById('modal-close').onclick = () => modalCustom.classList.add('hidden');
+    document.getElementById('modal-btn-cancel').onclick = () => modalCustom.classList.add('hidden');
+    
+    document.getElementById('modal-btn-apply').onclick = () => {
+      const lines = customInputText.value.trim().split('\n').map(l => l.trim()).filter(Boolean);
+      if (lines.length < 2) return;
+      const n = parseInt(lines[0]);
+      if (isNaN(n) || n < 2 || n > 12) {
+        appendLog('[错误] 请输入合法的节点数 N (2 <= N <= 12)');
+        return;
+      }
+      const edges = [];
+      for (let i = 1; i < lines.length; i++) {
+        const parts = lines[i].split(/\s+/).map(Number);
+        if (parts.length >= 3 && !isNaN(parts[0]) && !isNaN(parts[1]) && !isNaN(parts[2])) {
+          edges.push({ u: parts[0], v: parts[1], w: parts[2] });
+        }
+      }
+      if (edges.length === 0) return;
+
+      modalCustom.classList.add('hidden');
+      loadGraph({ n, edges });
+    };
+
+    // 快捷键支持: 空格播放/暂停, 左右箭头步进
+    window.addEventListener('keydown', (e) => {
+      if (e.target.tagName === 'TEXTAREA' || e.target.tagName === 'INPUT') return;
+      if (e.code === 'Space') {
+        e.preventDefault();
+        toggleAutoPlay();
+      } else if (e.code === 'ArrowRight') {
+        stopAutoPlay();
+        stepNext();
+      } else if (e.code === 'ArrowLeft') {
+        stopAutoPlay();
+        stepPrev();
+      }
+    });
+
+    // 页面启动初始化
+    window.onload = () => {
+      loadGraph(JSON.parse(JSON.stringify(PRESETS.preset1)));
+    };
+  </script>
+</body>
+</html>
