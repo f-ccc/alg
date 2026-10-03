@@ -62,7 +62,7 @@ struct HLD {
 ```c++
 struct TreeLCA {
     int n;
-    static constexpr int LOG = 20; // 支持 N <= 1,000,000
+    static constexpr int LOG = 20; // 2^20 > 1,000,000
     std::vector<std::vector<int>> adj;
     std::vector<int> dep;
     std::vector<std::array<int, LOG>> fa;
@@ -74,19 +74,25 @@ struct TreeLCA {
         adj[v].push_back(u);
     }
 
-    void dfs(int u, int p) {
-        fa[u][0] = p;
-        dep[u] = dep[p] + 1;
-        for (int i = 1; i < LOG; ++i) {
-            fa[u][i] = fa[fa[u][i - 1]][i - 1];
-        }
-        for (int v : adj[u]) {
-            if (v != p) dfs(v, u);
-        }
-    }
-
     void work(int root = 1) {
-        dfs(root, 0);
+        std::vector<int> q;
+        q.reserve(n);
+        q.push_back(root);
+        dep[root] = 1;
+
+        for (size_t i = 0; i < q.size(); ++i) {
+            int u = q[i];
+            for (int k = 1; k < LOG; ++k) {
+                fa[u][k] = fa[fa[u][k - 1]][k - 1];
+            }
+            for (int v : adj[u]) {
+                if (v != fa[u][0]) {
+                    dep[v] = dep[u] + 1;
+                    fa[v][0] = u;
+                    q.push_back(v);
+                }
+            }
+        }
     }
 
     int lca(int u, int v) const {
