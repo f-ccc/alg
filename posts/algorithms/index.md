@@ -12,3 +12,4 @@
 
 ## 图论
 1. [kruskal重构树](kruskal重构树.md)
+2. [Kosaraju](Kosaraju.md)
