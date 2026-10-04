@@ -112,3 +112,5 @@ void kosaraju(int n) {
 | **空间开销** | $2 \times (V + E)$（需额外存反图） | $V + E$（单向原图） |
 
 ---
+
+例题： [abc478 - E](https://atcoder.jp/contests/abc478/tasks/abc478_e)  题解：[abc478 - E 题解](https://ac.fccc.xyz/posts/contest/atcoder/abc_478#e-lt-and-le)
