@@ -13,3 +13,4 @@
 ## 图论
 1. [kruskal重构树](kruskal重构树.md)
 2. [Kosaraju](Kosaraju.md)
+3. [强连通分量](强连通分量.md)
