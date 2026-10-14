@@ -14,3 +14,4 @@
 1. [kruskal重构树](kruskal重构树.md)
 2. [Kosaraju](Kosaraju.md)
 3. [强连通分量](强连通分量.md)
+4. [割边、边双连通分量和缩点](割边、边双连通分量和缩点.md)
